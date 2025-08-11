@@ -1,0 +1,461 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+}
+
+/* Header styling untuk mengatur posisi logout */
+.header {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.logout-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.logout-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+}
+
+.logout-button:hover {
+    background-color: #c82333;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 60px; /* Memberikan ruang untuk tombol logout */
+}
+
+.tanggal {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.admin-info {
+    font-size: 14px;
+    color: #333;
+}
+
+.statistik-horizontal {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.stat-box {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 10px;
+    margin: 0 10px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-box.total h3 {
+    color: #6c757d;
+}
+.stat-box.kurang h3 {
+    color: #dc3545;
+}
+.stat-box.hadir h3 {
+    color: #28a745;
+}
+
+.stat-box p {
+    font-size: 24px;
+    margin: 10px 0 0 0;
+    font-weight: bold;
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.menu-button {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.menu-button button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.rekap-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 15px 0;
+    background-color: #007bff;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.rekap-btn:hover {
+    background-color: #0056b3;
+}
+
+.menu-button button:hover {
+    background-color: #0056b3;
+}
+
+.nav-buttons {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.nav-buttons button {
+    margin: 5px;
+    padding: 8px 16px;
+    background-color: #343a40;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.nav-buttons button:hover {
+    background-color: #23272b;
+}
+
+.accordion-section {
+    margin-top: 40px;
+    border-top: 2px solid #007bff;
+    padding-top: 20px;
+}
+
+.accordion-section h2 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #007bff;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    overflow: visible;
+}
+
+table:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+table th, table td {
+    padding: 15px 12px;
+    text-align: left;
+    vertical-align: middle;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 13px;
+    position: relative;
+}
+
+table th:first-child {
+    border-top-left-radius: 12px;
+}
+
+table th:last-child {
+    border-top-right-radius: 12px;
+}
+
+table tbody tr {
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+/* Khusus untuk dropdown row - z-index lebih tinggi */
+table tbody tr.dropdown-row {
+    z-index: 100 !important;
+}
+
+table tbody tr.dropdown-row:hover {
+    z-index: 100 !important;
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+table td {
+    font-size: 14px;
+    color: #495057;
+}
+
+/* Styling khusus untuk kolom nomor */
+table td:first-child {
+    font-weight: bold;
+    color: #667eea;
+    text-align: center;
+    width: 60px;
+}
+
+/* Styling untuk dropdown row */
+.dropdown-row {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.03) 100%) !important;
+    border-top: 2px solid #ffc107 !important;
+    z-index: 100 !important;
+    position: relative !important;
+}
+
+.dropdown-row:hover {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 193, 7, 0.06) 100%) !important;
+    transform: none !important;
+    box-shadow: none !important;
+    z-index: 100 !important;
+}
+
+.dropdown-row td {
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 100 !important;
+    vertical-align: middle !important;
+}
+
+/* Khusus untuk td yang berisi dropdown - memberikan ruang yang cukup */
+.dropdown-row td:has(.dropdown-belum), 
+.dropdown-row td:last-child {
+    z-index: 1000 !important;
+    position: relative !important;
+    padding: 15px 12px !important;
+}
+
+/* Override untuk accordion-section agar dropdown tidak terpotong */
+.accordion-section {
+    margin-top: 40px;
+    border-top: 2px solid #007bff;
+    padding-top: 20px;
+    overflow: visible;
+    position: relative;
+}
+
+/* Modern styling untuk nomor urut dengan badge */
+table tbody tr:not(.dropdown-row) td:first-child {
+    position: relative;
+}
+
+table tbody tr:not(.dropdown-row) td:first-child::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0.1;
+}
+
+.dropdown-belum {
+    position: relative;
+    display: inline-block;
+    z-index: 1000 !important;
+}
+
+.dropdown-toggle {
+    background: linear-gradient(135deg, #ffc107, #ffb300);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+    position: relative;
+    z-index: 1001 !important;
+    min-width: 120px;
+    text-align: left;
+}
+
+.dropdown-toggle:hover {
+    background: linear-gradient(135deg, #e0a800, #d39e00);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.4);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: 10000 !important;
+    background-color: #fff;
+    min-width: 350px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin-top: 5px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    left: 0;
+    top: 100%;
+}
+
+.dropdown-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-menu li:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu li:hover {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Perbaikan untuk scrollbar dropdown */
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Styling untuk tombol simpan */
+.btn-simpan {
+    display: block;
+    width: 200px;
+    margin: 30px auto;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-simpan:hover {
+    background: linear-gradient(135deg, #218838, #1ea080);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+}
+
+.btn-simpan:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+/* Styling untuk tombol hapus */
+.hapus-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.hapus-btn:hover {
+    background-color: #c82333;
+}
+
+/* Styling untuk input keterangan */
+.input-keterangan {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.input-keterangan:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}

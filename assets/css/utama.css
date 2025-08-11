@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  background: url('login.jpg') no-repeat center center fixed; /* Pastikan file INDEX.png ada di folder yang sama */
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: rgba(173, 216, 230, 0.85); /* lightblue transparan */
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.container h1 {
+  font-size: 36px;
+  color: #000;
+  margin-bottom: 30px;
+}
+
+.qr-box {
+  width: 250px;
+  height: 250px;
+  background-color: red; /* kotak merah posisi barcode */
+  margin: 0 auto 30px auto;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.918); 
+  padding: 20px;
+  width: 150px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.stat-box h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #000;
+}
