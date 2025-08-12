@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $tanggal = date('Y-m-d');
 
-// Ambil seluruh personel
+// Ambil seluruh personeloubl
 $personel_stmt = $pdo->query("SELECT * FROM personel");
 $personel_list = $personel_stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -3,15 +3,14 @@ session_start();
 header('Content-Type: application/json');
 require_once '../inc/db.php';
 
-// Cek apakah user sudah login dan role-nya personel
+date_default_timezone_set('Asia/Jakarta');
+
 if (!isset($_SESSION['personel_id'])) {
     echo json_encode(['success' => false, 'message' => 'Belum login']);
     exit;
 }
 
-// Ambil input JSON dari fetch
 $input = json_decode(file_get_contents('php://input'), true);
-
 if (!$input || !isset($input['qr'])) {
     echo json_encode(['success' => false, 'message' => 'Data QR tidak ditemukan']);
     exit;
@@ -22,25 +21,30 @@ $tanggal = date('Y-m-d');
 $keluar = date('H:i:s');
 $personel_id = $_SESSION['personel_id'];
 
-// Cek apakah QR sesuai (misalnya berisi tanggal hari ini)
+// Cek apakah QR sesuai
 if ($qr !== $tanggal) {
     echo json_encode(['success' => false, 'message' => 'QR tidak valid']);
     exit;
 }
 
-// Cek apakah sudah absen sebelumnya hari ini
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM absensi WHERE personel_id = ? AND tanggal = ?");
+// Cek apakah sudah absen pulang hari ini
+$stmt = $pdo->prepare("SELECT id FROM absensi 
+                       WHERE personel_id = ? AND tanggal = ? AND keluar <> '00:00:00'");
 $stmt->execute([$personel_id, $tanggal]);
-$sudah_absen = $stmt->fetchColumn();
+$sudah_absen_pulang = $stmt->fetchColumn();
 
-if ($sudah_absen) {
-    echo json_encode(['success' => false, 'message' => 'Anda sudah absen hari ini']);
+if ($sudah_absen_pulang) {
+    echo json_encode(['success' => false, 'message' => 'Anda sudah absen pulang hari ini']);
     exit;
 }
 
-// Simpan data absensi
-$stmt = $pdo->prepare("INSERT INTO absensi (keluar) VALUES (?)");
-$stmt->execute([$keluar]);
+// Update jam keluar di absensi yang sudah ada
+$stmt = $pdo->prepare("UPDATE absensi SET keluar = ? WHERE personel_id = ? AND tanggal = ? AND keluar = '00:00:00'");
+$update_success = $stmt->execute([$keluar, $personel_id, $tanggal]);
 
-echo json_encode(['success' => true, 'message' => 'Absen berhasil']);
+if ($update_success && $stmt->rowCount() > 0) {
+    echo json_encode(['success' => true, 'message' => 'Absen Keluar berhasil']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Data absensi masuk belum ada']);
+}
 exit;

@@ -211,7 +211,7 @@ if (!isset($_SESSION['personel_id'])) {
                 resultElement.className = data.status === 'success' ? 'success' : 'error';
             })
             .catch(err => {
-                resultElement.innerText = "Gagal mengirim data. Silakan coba lagi.";
+                resultElement.innerText = "Gagal mengirim data. Silakan coba lagi." + err.message;
                 resultElement.className = 'error';
             });
             

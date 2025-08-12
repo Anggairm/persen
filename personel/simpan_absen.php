@@ -3,6 +3,8 @@ session_start();
 header('Content-Type: application/json');
 require_once '../inc/db.php';
 
+date_default_timezone_set('Asia/Jakarta');
+
 // Cek apakah user sudah login dan role-nya personel
 if (!isset($_SESSION['personel_id'])) {
     echo json_encode(['success' => false, 'message' => 'Belum login']);

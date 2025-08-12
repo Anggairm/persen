@@ -363,8 +363,8 @@ $tahun = date('Y');
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="main-title">SIAPERS</h1>
-            <p class="subtitle">APLIKASI ABSENSI PERSONEL</p>
+            <h1 class="main-title">SIAPERS AMPUH</h1>
+            <p class="subtitle">APLIKASI ABSENSI PERSONEL TNI AU AMPUH</p>
         </div>
 
         <div class="content">
