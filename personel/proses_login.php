@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($personel && password_verify($password, $personel['password'])) {
         $_SESSION['personel_id'] = $personel['id'];
         $_SESSION['nama'] = $personel['nama'];
-        header("Location: scan.php");
+        header("Location: absensi_selector.php");
         exit;
     } else {
         header("Location: login_personel.php?error=NRP atau password salah");

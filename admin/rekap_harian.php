@@ -15,7 +15,7 @@ $personel_list = $personel_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Ambil absensi hari ini
 $absensi_stmt = $pdo->prepare("
-    SELECT a.personel_id, a.status, a.kategori, a.keterangan,
+    SELECT a.personel_id, a.status, a.kategori, a.keterangan, a.jam, a.keluar,
            p.nrp, p.nama, p.pangkat, p.korps, p.satker
     FROM absensi a
     JOIN personel p ON a.personel_id = p.id
@@ -27,7 +27,13 @@ $absensi_list = $absensi_stmt->fetchAll(PDO::FETCH_ASSOC);
 // Buat array absensi dengan key personel_id
 $absensi_map = [];
 foreach ($absensi_list as $a) {
-    $absensi_map[$a['personel_id']] = $a;
+    $absensi_map[$a['personel_id']] = [
+        'status' => $a['status'],
+        'kategori' => $a['kategori'],
+        'keterangan' => $a['keterangan'],
+        'jam_masuk' => $a['jam'],
+        'jam_keluar' => $a['keluar']
+    ];
 }
 ?>
 
@@ -152,6 +158,8 @@ foreach ($absensi_list as $a) {
                     <th>Korps</th>
                     <th>Satker</th>
                     <th>Absen</th>
+                    <th>Masuk</th>
+                    <th>Keluar</th>
                     <th>Keterangan</th>
                 </tr>
             </thead>
@@ -181,6 +189,8 @@ foreach ($absensi_list as $a) {
                     <td><?= htmlspecialchars($p['korps']) ?></td>
                     <td><?= htmlspecialchars($p['satker']) ?></td>
                     <td><?= $status ?></td>
+                    <td><?= isset($absen['jam_masuk']) ? htmlspecialchars($absen['jam_masuk']) : '-' ?></td>
+                    <td><?= isset($absen['jam_keluar']) ? htmlspecialchars($absen['jam_keluar']) : '-' ?></td>
                     <td><?= $keterangan ?></td>
                 </tr>
                 <?php endforeach; ?>
