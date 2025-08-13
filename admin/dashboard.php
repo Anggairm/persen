@@ -111,9 +111,81 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
             border-radius: 3px;
             cursor: pointer;
             margin-right: 5px;
+            font-size: 12px;
         }
         .edit-btn:hover {
             background-color: #e0a800;
+        }
+        .hapus-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        .hapus-btn:hover {
+            background-color: #c82333;
+        }
+        .simpan-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .simpan-btn:hover {
+            background-color: #218838;
+        }
+        .table-actions {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-top: 2px solid #dee2e6;
+        }
+        .btn-simpan-tabel {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-simpan-tabel:hover {
+            background-color: #218838;
+        }
+        .btn-simpan-tabel:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            border: 1px solid #c3e6cb;
+            font-size: 12px;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            border: 1px solid #f5c6cb;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -137,10 +209,10 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
     <?php endif; ?>
 
     <div class="header">
-    <div class="logout-container">
-        <a href="logout.php" class="logout-button">Logout</a>
+        <div class="logout-container">
+            <a href="logout.php" class="logout-button">Logout</a>
+        </div>
     </div>
-</div>
 
     <div class="statistik-horizontal">
         <div class="stat-box total">
@@ -176,70 +248,71 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
         <?php endforeach; ?>
     </div>
 
-    <form id="formKeterangan" action="simpan_keterangan.php" method="POST">
-        <input type="hidden" name="data" id="keteranganData">
-
-        <?php foreach ($kategori as $ket): ?>
-            <div class="accordion-section" id="<?= strtolower(str_replace(' ', '-', $ket)) ?>">
-                <h2><?= $ket ?></h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama</th>
-                            <th>Keterangan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody data-kategori="<?= $ket ?>">
-                        <?php 
-                        // Tampilkan data yang sudah ada untuk hari ini
-                        if (isset($keterangan_hari_ini[$ket])):
-                            $no = 1;
-                            foreach ($keterangan_hari_ini[$ket] as $existing): 
-                        ?>
-                            <tr class="existing-entry" data-existing-id="<?= $existing['id'] ?>">
-                                <td><?= $no++ ?></td>
-                                <td data-nama="<?= htmlspecialchars($existing['pangkat'] .' '.  $existing['korps']  .' '. $existing['nama']) ?>" data-id="<?= $existing['id'] ?>">
-                                    <?= htmlspecialchars($existing['pangkat'] .' '.  $existing['korps']  .' '. $existing['nama']) ?>
-                                </td>
-                                <td>
-                                    <input type="text" data-keterangan class="input-keterangan" 
-                                           value="<?= htmlspecialchars($existing['keterangan']) ?>" 
-                                           placeholder="Isi keterangan...">
-                                </td>
-                                <td>
-                                    <button type="button" class="edit-btn" onclick="editKeterangan(this)">Edit</button>
-                                    <button type="button" class="hapus-btn">Hapus</button>
-                                </td>
-                            </tr>
-                        <?php 
-                            endforeach;
-                        endif; 
-                        ?>
-                        
-                        <tr class="dropdown-row">
-                            <td>-</td>
-                            <td colspan="3">
-                                <div class="dropdown-belum">
-                                    <button type="button" class="dropdown-toggle">Pilih Personel ▼</button>
-                                    <ul class="dropdown-menu">
-                                        <?php foreach ($personel_belum_absen as $p): ?>
-                                            <li data-id="<?= $p['id'] ?>">
-                                                <?= htmlspecialchars($p['pangkat'] .' '.  $p['korps']  .' '. $p['nama']) ?>
-                                            </li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
+    <?php foreach ($kategori as $ket): ?>
+        <div class="accordion-section" id="<?= strtolower(str_replace(' ', '-', $ket)) ?>">
+            <h2><?= $ket ?></h2>
+            <div class="message-container" id="message-<?= strtolower(str_replace(' ', '-', $ket)) ?>"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Keterangan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody data-kategori="<?= $ket ?>">
+                    <?php 
+                    // Tampilkan data yang sudah ada untuk hari ini
+                    if (isset($keterangan_hari_ini[$ket])):
+                        $no = 1;
+                        foreach ($keterangan_hari_ini[$ket] as $existing): 
+                    ?>
+                        <tr class="existing-entry" data-existing-id="<?= $existing['id'] ?>">
+                            <td><?= $no++ ?></td>
+                            <td data-nama="<?= htmlspecialchars($existing['pangkat'] .' '.  $existing['korps']  .' '. $existing['nama']) ?>" data-id="<?= $existing['id'] ?>">
+                                <?= htmlspecialchars($existing['pangkat'] .' '.  $existing['korps']  .' '. $existing['nama']) ?>
+                            </td>
+                            <td>
+                                <input type="text" data-keterangan class="input-keterangan" 
+                                       value="<?= htmlspecialchars($existing['keterangan']) ?>" 
+                                       placeholder="Isi keterangan...">
+                            </td>
+                            <td>
+                                <button type="button" class="edit-btn" onclick="editKeterangan(this)">Edit</button>
+                                <button type="button" class="hapus-btn" onclick="hapusData(this, <?= $existing['id'] ?>)">Hapus</button>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
+                    <?php 
+                        endforeach;
+                    endif; 
+                    ?>
+                    
+                    <tr class="dropdown-row">
+                        <td>-</td>
+                        <td colspan="3">
+                            <div class="dropdown-belum">
+                                <button type="button" class="dropdown-toggle">Pilih Personel ▼</button>
+                                <ul class="dropdown-menu">
+                                    <?php foreach ($personel_belum_absen as $p): ?>
+                                        <li data-id="<?= $p['id'] ?>">
+                                            <?= htmlspecialchars($p['pangkat'] .' '.  $p['korps']  .' '. $p['nama']) ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="table-actions">
+                <button type="button" class="btn-simpan-tabel" onclick="simpanTabel('<?= $ket ?>')">
+                    Simpan
+                </button>
             </div>
-        <?php endforeach; ?>
+        </div>
+    <?php endforeach; ?>
 
-        <button type="submit" class="btn-simpan">Simpan</button>
-    </form>
 </div>
 
 <script>
@@ -278,7 +351,7 @@ document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 <td>${rowCount}</td>
                 <td data-nama="${nama}" data-id="${id}">${nama}</td>
                 <td><input type="text" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
-                <td><button type="button" class="hapus-btn">Hapus</button></td>
+                <td><button type="button" class="hapus-btn" onclick="hapusBaris(this)">Hapus</button></td>
             `;
             kategoriTable.insertBefore(tr, kategoriTable.querySelector('.dropdown-row'));
 
@@ -287,31 +360,174 @@ document.querySelectorAll('.dropdown-menu').forEach(menu => {
     });
 });
 
-document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('hapus-btn')) {
-        const tr = e.target.closest('tr');
-        const id = tr.querySelector('td[data-id]')?.getAttribute('data-id');
-        const nama = tr.querySelector('td[data-nama]')?.textContent;
-        
-        if (id && nama) {
-            semuaNamaTerpilih.delete(id);
+function hapusBaris(button) {
+    const tr = button.closest('tr');
+    const id = tr.querySelector('td[data-id]')?.getAttribute('data-id');
+    const nama = tr.querySelector('td[data-nama]')?.textContent;
+    
+    if (id && nama) {
+        semuaNamaTerpilih.delete(id);
 
-            // Jika ini bukan existing entry, tambahkan kembali ke dropdown
-            if (!tr.hasAttribute('data-existing-id')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    const li = document.createElement('li');
-                    li.textContent = nama;
-                    li.dataset.id = id;
-                    menu.appendChild(li);
-                });
-            }
+        // Tambahkan kembali ke dropdown jika ini bukan existing entry
+        if (!tr.hasAttribute('data-existing-id')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                const li = document.createElement('li');
+                li.textContent = nama;
+                li.dataset.id = id;
+                menu.appendChild(li);
+            });
         }
-        tr.remove();
-        
-        // Update nomor urut
-        updateRowNumbers();
     }
-});
+    tr.remove();
+    
+    // Update nomor urut
+    updateRowNumbers();
+}
+
+function hapusData(button, personelId) {
+    if (!confirm('Apakah Anda yakin ingin menghapus data absensi ini?')) {
+        return;
+    }
+
+    const tr = button.closest('tr');
+    const messageContainer = tr.closest('.accordion-section').querySelector('.message-container');
+    
+    // Show loading
+    tr.classList.add('loading');
+    
+    fetch('hapus_keterangan.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            personel_id: personelId,
+            tanggal: '<?= $tanggal ?>'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Hapus dari set
+            semuaNamaTerpilih.delete(personelId.toString());
+            
+            // Tambahkan kembali ke dropdown
+            const nama = tr.querySelector('td[data-nama]').textContent;
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                const li = document.createElement('li');
+                li.textContent = nama;
+                li.dataset.id = personelId;
+                menu.appendChild(li);
+            });
+            
+            // Hapus baris
+            tr.remove();
+            updateRowNumbers();
+            
+            // Show success message
+            showMessage(messageContainer, 'Data berhasil dihapus!', 'success');
+            
+            // Update statistik (reload halaman setelah delay)
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            tr.classList.remove('loading');
+            showMessage(messageContainer, 'Gagal menghapus data: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        tr.classList.remove('loading');
+        showMessage(messageContainer, 'Terjadi kesalahan saat menghapus data', 'error');
+        console.error('Error:', error);
+    });
+}
+
+function simpanTabel(kategori) {
+    const tbody = document.querySelector(`tbody[data-kategori="${kategori}"]`);
+    const button = tbody.closest('.accordion-section').querySelector('.btn-simpan-tabel');
+    const messageContainer = tbody.closest('.accordion-section').querySelector('.message-container');
+    
+    // Kumpulkan data dari tabel
+    const data = [];
+    tbody.querySelectorAll('tr:not(.dropdown-row)').forEach(tr => {
+        const nama = tr.querySelector('td[data-nama]')?.textContent.trim();
+        const id = tr.querySelector('td[data-id]')?.getAttribute('data-id');
+        const keterangan = tr.querySelector('input[data-keterangan]')?.value.trim();
+        const isExisting = tr.hasAttribute('data-existing-id');
+        
+        if (nama && keterangan && id) {
+            data.push({ 
+                id: id,
+                nama: nama, 
+                kategori: kategori,
+                keterangan: keterangan,
+                isExisting: isExisting
+            });
+        }
+    });
+    
+    if (data.length === 0) {
+        showMessage(messageContainer, 'Tidak ada data untuk disimpan di tabel ' + kategori, 'error');
+        return;
+    }
+    
+    // Show loading state
+    button.disabled = true;
+    button.textContent = 'Menyimpan...';
+    
+    fetch('simpan_keterangan.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            data: data,
+            tanggal: '<?= $tanggal ?>'
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showMessage(messageContainer, `Data ${kategori} berhasil disimpan! (${result.count} data)`, 'success');
+            
+            // Update existing entries
+            tbody.querySelectorAll('tr:not(.dropdown-row):not([data-existing-id])').forEach(tr => {
+                tr.classList.add('existing-entry');
+                tr.setAttribute('data-existing-id', tr.querySelector('td[data-id]').getAttribute('data-id'));
+                
+                // Update hapus button
+                const hapusBtn = tr.querySelector('.hapus-btn');
+                if (hapusBtn) {
+                    const personelId = tr.querySelector('td[data-id]').getAttribute('data-id');
+                    hapusBtn.setAttribute('onclick', `hapusData(this, ${personelId})`);
+                }
+            });
+            
+            // Update statistik setelah delay
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showMessage(messageContainer, 'Gagal menyimpan data: ' + result.message, 'error');
+        }
+    })
+    .catch(error => {
+        showMessage(messageContainer, 'Terjadi kesalahan saat menyimpan data', 'error');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.textContent = `Simpan Data ${kategori}`;
+    });
+}
+
+function showMessage(container, message, type) {
+    container.innerHTML = `<div class="${type}-message">${message}</div>`;
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 5000);
+}
 
 function updateRowNumbers() {
     document.querySelectorAll('tbody').forEach(tbody => {
@@ -330,40 +546,6 @@ function editKeterangan(button) {
     input.focus();
     input.select();
 }
-
-document.getElementById('formKeterangan').addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevent default form submission
-    
-    const hasil = [];
-    document.querySelectorAll('tbody').forEach(tbody => {
-        const kategori = tbody.getAttribute('data-kategori');
-        tbody.querySelectorAll('tr:not(.dropdown-row)').forEach(tr => {
-            const nama = tr.querySelector('td[data-nama]')?.textContent.trim();
-            const id = tr.querySelector('td[data-id]')?.getAttribute('data-id');
-            const keterangan = tr.querySelector('input[data-keterangan]')?.value.trim();
-            
-            if (nama && keterangan && id) {
-                hasil.push({ 
-                    id: id,
-                    nama: nama, 
-                    kategori: kategori,
-                    keterangan: keterangan,
-                    isExisting: tr.hasAttribute('data-existing-id')
-                });
-            }
-        });
-    });
-    
-    console.log('Data yang akan dikirim:', hasil); // Debug log
-    document.getElementById('keteranganData').value = JSON.stringify(hasil);
-    
-    // Submit form manually after setting data
-    if (hasil.length > 0) {
-        this.submit();
-    } else {
-        alert('Tidak ada data keterangan untuk disimpan!');
-    }
-});
 
 function scrollToSection(id) {
     const el = document.getElementById(id);

@@ -208,9 +208,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <div class="login-header">
-    <h1 class="login-title">SIAPERS</h1>
-    <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
-  </div>
+  <img src="assets/css/logo.png" alt="logo" class="login-logo" style=" width: 120px; height: 120px;"/>
+  <h1 class="login-title">SIAPERS AMPUH</h1>
+  <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
+</div>
 
   <div class="login-container">
     <?php if ($error): ?>

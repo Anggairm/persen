@@ -74,7 +74,7 @@ if (!isset($_SESSION['personel_id'])) {
         }
 
         .logout-button:hover {
-            background: #c53030;
+            background: #22543d;
         }
 
         .logout-button:active {
