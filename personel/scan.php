@@ -112,9 +112,9 @@ if (!isset($_SESSION['personel_id'])) {
         }
 
         #result.success {
-            background: #c6f6d5;
-            color: #22543d;
-            border-color: #9ae6b4;
+            background: #c6f6d5 !important;
+            color: #22543d !important;
+            border-color: #9ae6b4 !important;
         }
 
         #result.error {
@@ -201,15 +201,25 @@ if (!isset($_SESSION['personel_id'])) {
             resultElement.className = "";
             
             fetch('simpan_absen.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ qr: decodedText })
-            })
-            .then(res => res.json())
-            .then(data => {
-                resultElement.innerText = data.message;
-                resultElement.className = data.status === 'success' ? 'success' : 'error';
-            })
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ qr: decodedText })
+})
+.then(res => res.json())
+.then(data => {
+    resultElement.innerText = data.message;
+    resultElement.className = data.success ? 'success' : 'error';
+    
+    // HAPUS BAGIAN TIMEOUT INI:
+    // if (data.success) {
+    //     setTimeout(() => {
+    //         html5QrcodeScanner.clear();
+    //         html5QrcodeScanner.render(onScanSuccess, onScanError);
+    //         resultElement.innerText = "Siap untuk memindai QR Code berikutnya...";
+    //         resultElement.className = "";
+    //     }, 2000);
+    // }
+})
             .catch(err => {
                 resultElement.innerText = "Gagal mengirim data. Silakan coba lagi.";
                 resultElement.className = 'error';
