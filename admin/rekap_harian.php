@@ -2,29 +2,59 @@
 session_start();
 require_once '../inc/db.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+// Pastikan sudah start session dan koneksi database
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
     header('Location: ../login.php');
     exit;
 }
 
 $tanggal = date('Y-m-d');
+$role = $_SESSION['role'];
+$satker = $_SESSION['satker'];
 
-// Ambil seluruh personeloubl
-$personel_stmt = $pdo->query("SELECT * FROM personel");
-$personel_list = $personel_stmt->fetchAll(PDO::FETCH_ASSOC);
+// ====================
+// Ambil daftar personel sesuai role
+// ====================
+$queryPersonel = "SELECT * FROM personel";
+$paramsPersonel = [];
 
-// Ambil absensi hari ini
-$absensi_stmt = $pdo->prepare("
+if ($role === 'admin') {
+    $queryPersonel .= " WHERE satker = ?";
+    $paramsPersonel[] = $satker;
+}
+
+$queryPersonel .= " ORDER BY nama ASC";
+
+$stmt = $pdo->prepare($queryPersonel);
+$stmt->execute($paramsPersonel);
+$personel_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ====================
+// Ambil absensi hari ini sesuai role
+// ====================
+$queryAbsensi = "
     SELECT a.personel_id, a.status, a.kategori, a.keterangan, a.jam, a.keluar,
            p.nrp, p.nama, p.pangkat, p.korps, p.satker
     FROM absensi a
     JOIN personel p ON a.personel_id = p.id
     WHERE a.tanggal = ?
-");
-$absensi_stmt->execute([$tanggal]);
+";
+$paramsAbsensi = [$tanggal];
+
+if ($role === 'admin') {
+    $queryAbsensi .= " AND p.satker = ?";
+    $paramsAbsensi[] = $satker;
+}
+
+$queryAbsensi .= " ORDER BY p.nama ASC";
+
+$absensi_stmt = $pdo->prepare($queryAbsensi);
+$absensi_stmt->execute($paramsAbsensi);
 $absensi_list = $absensi_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Buat array absensi dengan key personel_id
+// ====================
+// Buat map absensi agar mudah akses
+// ====================
 $absensi_map = [];
 foreach ($absensi_list as $a) {
     $absensi_map[$a['personel_id']] = [
@@ -35,10 +65,12 @@ foreach ($absensi_list as $a) {
         'jam_keluar' => $a['keluar']
     ];
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Rekap Harian Absensi</title>
@@ -57,7 +89,7 @@ foreach ($absensi_list as $a) {
             background: #fff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
@@ -127,7 +159,9 @@ foreach ($absensi_list as $a) {
         }
 
         @media (max-width: 768px) {
-            .rekap-table th, .rekap-table td {
+
+            .rekap-table th,
+            .rekap-table td {
                 padding: 8px;
                 font-size: 14px;
             }
@@ -143,6 +177,7 @@ foreach ($absensi_list as $a) {
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Rekapitulasi Absensi Harian</h1>
@@ -164,7 +199,8 @@ foreach ($absensi_list as $a) {
                 </tr>
             </thead>
             <tbody>
-                <?php $no = 1; foreach ($personel_list as $p): 
+                <?php $no = 1;
+                foreach ($personel_list as $p):
                     $id = $p['id'];
                     $absen = isset($absensi_map[$id]) ? $absensi_map[$id] : null;
 
@@ -180,19 +216,19 @@ foreach ($absensi_list as $a) {
                         $status = '<span class="status-kosong">-</span>';
                         $keterangan = '<span class="status-kosong">-</span>';
                     }
-                ?>
-                <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= htmlspecialchars($p['nrp']) ?></td>
-                    <td><?= htmlspecialchars($p['nama']) ?></td>
-                    <td><?= htmlspecialchars($p['pangkat']) ?></td>
-                    <td><?= htmlspecialchars($p['korps']) ?></td>
-                    <td><?= htmlspecialchars($p['satker']) ?></td>
-                    <td><?= $status ?></td>
-                    <td><?= isset($absen['jam_masuk']) ? htmlspecialchars($absen['jam_masuk']) : '-' ?></td>
-                    <td><?= isset($absen['jam_keluar']) ? htmlspecialchars($absen['jam_keluar']) : '-' ?></td>
-                    <td><?= $keterangan ?></td>
-                </tr>
+                    ?>
+                    <tr>
+                        <td><?= $no++ ?></td>
+                        <td><?= htmlspecialchars($p['nrp']) ?></td>
+                        <td><?= htmlspecialchars($p['nama']) ?></td>
+                        <td><?= htmlspecialchars($p['pangkat']) ?></td>
+                        <td><?= htmlspecialchars($p['korps']) ?></td>
+                        <td><?= htmlspecialchars($p['satker']) ?></td>
+                        <td><?= $status ?></td>
+                        <td><?= isset($absen['jam_masuk']) ? htmlspecialchars($absen['jam_masuk']) : '-' ?></td>
+                        <td><?= isset($absen['jam_keluar']) ? htmlspecialchars($absen['jam_keluar']) : '-' ?></td>
+                        <td><?= $keterangan ?></td>
+                    </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
@@ -200,4 +236,5 @@ foreach ($absensi_list as $a) {
         <a href="dashboard.php" class="dashboard-button">kembali</a>
     </div>
 </body>
+
 </html>
