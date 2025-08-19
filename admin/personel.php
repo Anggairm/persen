@@ -5,18 +5,31 @@ require_once '../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 // Cek role admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
     header('Location: ../login.php');
     exit;
 }
+
+$tanggal = date('Y-m-d');
+$role = $_SESSION['role'];
+$satker = $_SESSION['satker'];
+
+$filterWhere = "";
+$filterJoin = "";
+$params = [];
 
 // Tambah personel
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'tambah') {
     $stmt = $pdo->prepare("INSERT INTO personel (nrp, nama, pangkat, korps, jabatan, satker, password, role)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
-        $_POST['nrp'], $_POST['nama'], $_POST['pangkat'], $_POST['korps'],
-        $_POST['jabatan'], $_POST['satker'], password_hash($_POST['password'], PASSWORD_DEFAULT),
+        $_POST['nrp'],
+        $_POST['nama'],
+        $_POST['pangkat'],
+        $_POST['korps'],
+        $_POST['jabatan'],
+        $_POST['satker'],
+        password_hash($_POST['password'], PASSWORD_DEFAULT),
         $_POST['role'] ?? 'user'
     ]);
     header("Location: personel.php");
@@ -34,7 +47,7 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'edit') {
     $id = $_POST['id'];
     $sql = "UPDATE personel SET nrp=?, nama=?, pangkat=?, korps=?, jabatan=?, satker=?, role=?";
     $params = [$_POST['nrp'], $_POST['nama'], $_POST['pangkat'], $_POST['korps'], $_POST['jabatan'], $_POST['satker'], $_POST['role']];
-    
+
     if (!empty($_POST['password'])) {
         $sql .= ", password=?";
         $params[] = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -64,13 +77,20 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'impor' && isset($_FILES['file_ex
     $rows = $sheet->toArray();
 
     foreach ($rows as $i => $row) {
-        if ($i == 0) continue; // skip header
+        if ($i == 0)
+            continue; // skip header
         [$nrp, $nama, $pangkat, $korps, $jabatan, $satker, $password, $role] = $row;
         $stmt = $pdo->prepare("INSERT INTO personel (nrp, nama, pangkat, korps, jabatan, satker, password, role)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            $nrp, $nama, $pangkat, $korps, $jabatan, $satker,
-            password_hash($password, PASSWORD_DEFAULT), $role ?? 'user'
+            $nrp,
+            $nama,
+            $pangkat,
+            $korps,
+            $jabatan,
+            $satker,
+            password_hash($password, PASSWORD_DEFAULT),
+            $role ?? 'user'
         ]);
     }
     header("Location: personel.php");
@@ -78,8 +98,23 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'impor' && isset($_FILES['file_ex
 }
 
 // Ambil semua personel
-$personel = $pdo->query("SELECT * FROM personel ORDER BY nama ASC")->fetchAll(PDO::FETCH_ASSOC);
+$query = "SELECT * FROM personel";
+$params = [];
+
+if ($role === 'admin') {
+    $query .= " WHERE satker = ?";
+    $params[] = $satker;
+}
+
+$query .= " ORDER BY nama ASC";
+
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$personel = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $pangkatOptions = [
+    'MARSEKAL',
+    'MARSDYA',
+    'MARSDA',
     'MARSMA',
     'KOLONEL',
     'LETKOL',
@@ -102,27 +137,52 @@ $pangkatOptions = [
 ];
 
 $korpsOptions = [
-    'LEK',
-    'ADM',
+    'PNB',
+    'NAV',
     'TEK',
-    'TNI'
+    'LEK',
+    'KAL',
+    'ADM',
+    'PAS',
+    'POM',
+    'KES',
+    'SUS',
+    'KUM'
 ];
 
 $satkerOptions = [
-    'PUSTASISINFO',
-    'SUBDISSIDUKOPS',
-    'SUBDISSIDUKPERS',
-    'SUKDISSIDUKLOG',
-    'SUBDISDUKSISMIN',
-    'BAGUM',
-    'PROGAR',
-    'SISPRI',
-    'LATKER'
+    'SAHLIKASAU',
+    'DISOPSLATAU',
+    'PUSKODALAU',
+    'DISPENAU',
+    'INSPEKTORAT JENDERAL',
+    'PUSLAIKLAMBANGJA',
+    'DISPAMSANAU',
+    'SOPSAU',
+    'DISBANGOPSAU',
+    'SKOMLEKAU',
+    'SRENAAU',
+    'DISADAAU',
+    'SLOGAU',
+    'DISAERO',
+    'DISKOMLEKAU',
+    'DISKONSAU',
+    'DENMABESAU',
+    'DISINFOLAHTAAU',
+    'DISKUAU',
+    'SETUMAU',
+    'DISWATPERS',
+    'SINTELAU',
+    'DISDIKAU',
+    'DISKESAU',
+    'SPERSAU',
+    'DISMINPERSAU'
 ];
 ?>
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Manajemen Personel</title>
     <meta charset="UTF-8">
@@ -162,7 +222,7 @@ $satkerOptions = [
             align-items: center;
         }
 
-        .header-controls > div {
+        .header-controls>div {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -174,7 +234,7 @@ $satkerOptions = [
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .filter-row {
@@ -196,7 +256,8 @@ $satkerOptions = [
             color: #495057;
         }
 
-        .filter-group input, .filter-group select {
+        .filter-group input,
+        .filter-group select {
             padding: 8px 12px;
             border: 1px solid #ced4da;
             border-radius: 4px;
@@ -246,7 +307,7 @@ $satkerOptions = [
             overflow-y: auto;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             position: relative;
         }
 
@@ -292,7 +353,8 @@ $satkerOptions = [
             display: block;
         }
 
-        .modal input, .modal select {
+        .modal input,
+        .modal select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ced4da;
@@ -302,10 +364,11 @@ $satkerOptions = [
             box-sizing: border-box;
         }
 
-        .modal input:focus, .modal select:focus {
+        .modal input:focus,
+        .modal select:focus {
             outline: none;
             border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
         }
 
         .modal-actions {
@@ -391,7 +454,7 @@ $satkerOptions = [
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         table {
@@ -453,12 +516,12 @@ $satkerOptions = [
             border-radius: 12px;
             text-transform: uppercase;
         }
-        
+
         .badge-primary {
             background-color: #007bff;
             color: white;
         }
-        
+
         .badge-danger {
             background-color: #dc3545;
             color: white;
@@ -510,19 +573,21 @@ $satkerOptions = [
                 font-size: 12px;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 8px 6px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Manajemen Personel</h1>
-        
+
         <!-- Stats info -->
         <div class="stats-info">
-            Total Personel: <strong id="totalPersonel"><?= count($personel) ?></strong> | 
+            Total Personel: <strong id="totalPersonel"><?= count($personel) ?></strong> |
             Ditampilkan: <strong id="displayedCount"><?= count($personel) ?></strong>
         </div>
 
@@ -534,13 +599,14 @@ $satkerOptions = [
                     <button type="submit" class="btn btn-secondary">Kembali</button>
                 </form>
             </div>
-            
+
             <div>
                 <button class="btn btn-success" onclick="bukaModalTambah()">+ Tambah Personel</button>
             </div>
-            
+
             <div class="import-form">
-                <form method="post" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center;">
+                <form method="post" enctype="multipart/form-data"
+                    style="display: flex; gap: 10px; align-items: center;">
                     <input type="hidden" name="aksi" value="impor">
                     <input type="file" name="file_excel" accept=".xlsx,.xls" required>
                     <button class="btn btn-warning" type="submit">Import Excel</button>
@@ -555,7 +621,7 @@ $satkerOptions = [
                     <label>Filter :</label>
                     <input type="text" id="searchInput" placeholder="Ketik nama atau NRP...">
                 </div>
-                
+
                 <div class="filter-group">
                     <label></label>
                     <select id="filterPangkat">
@@ -565,7 +631,7 @@ $satkerOptions = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="filter-group">
                     <label></label>
                     <select id="filterKorps">
@@ -575,7 +641,7 @@ $satkerOptions = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="filter-group">
                     <label></label>
                     <select id="filterSatker">
@@ -585,16 +651,17 @@ $satkerOptions = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="filter-group">
                     <label></label>
                     <select id="filterRole">
                         <option value="">Semua Role</option>
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
+                        <option value="superadmin">Superadmin</option>
                     </select>
                 </div>
-                
+
                 <div class="filter-actions">
                     <button class="btn btn-outline" onclick="clearAllFilters()">Reset Filter</button>
                 </div>
@@ -627,20 +694,23 @@ $satkerOptions = [
                             <td><?= htmlspecialchars($p['korps']) ?></td>
                             <td><?= htmlspecialchars($p['jabatan']) ?></td>
                             <td><?= htmlspecialchars($p['satker']) ?></td>
-                            <td><span class="badge badge-<?= $p['role'] === 'admin' ? 'danger' : 'primary' ?>"><?= htmlspecialchars($p['role']) ?></span></td>
+                            <td><span
+                                    class="badge badge-<?= $p['role'] === 'admin' ? 'danger' : 'primary' ?>"><?= htmlspecialchars($p['role']) ?></span>
+                            </td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn btn-warning" onclick='bukaModalEdit(<?= json_encode($p) ?>)'>✏️ Edit</button>
-                                    <a href="?hapus=<?= $p['id'] ?>" 
-                                       onclick="return confirm('Apakah Anda yakin ingin menghapus personel ini?\n\nNama: <?= htmlspecialchars($p['nama']) ?>\nNRP: <?= htmlspecialchars($p['nrp']) ?>\n\nData yang dihapus tidak dapat dikembalikan!')" 
-                                       class="btn btn-danger">Hapus</a>
+                                    <button class="btn btn-warning" onclick='bukaModalEdit(<?= json_encode($p) ?>)'>✏️
+                                        Edit</button>
+                                    <a href="?hapus=<?= $p['id'] ?>"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus personel ini?\n\nNama: <?= htmlspecialchars($p['nama']) ?>\nNRP: <?= htmlspecialchars($p['nrp']) ?>\n\nData yang dihapus tidak dapat dikembalikan!')"
+                                        class="btn btn-danger">Hapus</a>
                                 </div>
                             </td>
                         </tr>
                     <?php endforeach ?>
                 </tbody>
             </table>
-            
+
             <!-- Empty state -->
             <div id="emptyState" class="empty-state" style="display: none;">
                 <h3>Tidak ada data yang ditemukan</h3>
@@ -657,46 +727,47 @@ $satkerOptions = [
             <form method="POST">
                 <input type="hidden" name="aksi" id="aksiInput" value="tambah">
                 <input type="hidden" name="id" id="idInput">
-                
+
                 <label for="nrpInput">NRP:</label>
                 <input type="text" name="nrp" id="nrpInput" required>
-                
+
                 <label for="namaInput">Nama Lengkap:</label>
                 <input type="text" name="nama" id="namaInput" required>
-                
+
                 <label for="pangkatInput">Pangkat:</label>
                 <select name="pangkat" id="pangkatInput" required>
                     <?php foreach ($pangkatOptions as $p): ?>
                         <option value="<?= $p ?>"><?= $p ?></option>
                     <?php endforeach; ?>
                 </select>
-                
+
                 <label for="korpsInput">Korps:</label>
                 <select name="korps" id="korpsInput" required>
                     <?php foreach ($korpsOptions as $k): ?>
                         <option value="<?= $k ?>"><?= $k ?></option>
                     <?php endforeach; ?>
                 </select>
-                
+
                 <label for="jabatanInput">Jabatan:</label>
                 <input type="text" name="jabatan" id="jabatanInput">
-                
+
                 <label for="satkerInput">Sub Dinas/Bagian:</label>
                 <select name="satker" id="satkerInput" required>
                     <?php foreach ($satkerOptions as $s): ?>
                         <option value="<?= $s ?>"><?= $s ?></option>
                     <?php endforeach; ?>
                 </select>
-                
+
                 <label for="passwordInput">Password:</label>
                 <input type="password" name="password" id="passwordInput" placeholder="Masukkan password">
-                
+
                 <label for="roleInput">Role:</label>
                 <select name="role" id="roleInput" required>
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
+                    <option value="superadmin">Superadmin</option>
                 </select>
-                
+
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-success">Simpan</button>
                     <button type="button" class="btn btn-secondary" onclick="tutupModal()">Batal</button>
@@ -716,33 +787,33 @@ $satkerOptions = [
         // MODAL FUNCTIONS - VERSI YANG SUDAH DIPERBAIKI
         function bukaModalTambah() {
             console.log('bukaModalTambah dipanggil');
-            
+
             document.getElementById('modalTitle').innerHTML = "Tambah Personel Baru";
             document.getElementById('aksiInput').value = "tambah";
             document.getElementById('idInput').value = "";
-            
+
             // Clear all inputs
             document.getElementById('nrpInput').value = "";
             document.getElementById('namaInput').value = "";
             document.getElementById('jabatanInput').value = "";
             document.getElementById('passwordInput').value = "";
-            
+
             // Reset selects
             document.getElementById('pangkatInput').selectedIndex = 0;
             document.getElementById('korpsInput').selectedIndex = 0;
             document.getElementById('satkerInput').selectedIndex = 0;
             document.getElementById('roleInput').value = "user";
-            
+
             // Set password required
             document.getElementById('passwordInput').required = true;
             document.getElementById('passwordInput').placeholder = "Masukkan password";
-            
+
             bukaModal();
         }
 
         function bukaModalEdit(data) {
             console.log('bukaModalEdit dipanggil dengan data:', data);
-            
+
             document.getElementById('modalTitle').innerHTML = "Edit Personel";
             document.getElementById('aksiInput').value = "edit";
             document.getElementById('idInput').value = data.id;
@@ -754,59 +825,59 @@ $satkerOptions = [
             document.getElementById('satkerInput').value = data.satker;
             document.getElementById('passwordInput').value = "";
             document.getElementById('roleInput').value = data.role;
-            
+
             // Password not required for edit
             document.getElementById('passwordInput').required = false;
             document.getElementById('passwordInput').placeholder = "Kosongkan jika tidak ingin mengubah password";
-            
+
             bukaModal();
         }
 
         function bukaModal() {
             console.log('bukaModal dipanggil');
-            
+
             const overlay = document.getElementById('overlay');
             const modal = document.getElementById('modalForm');
-            
+
             if (!overlay) {
                 console.error('Overlay tidak ditemukan!');
                 alert('Error: Overlay tidak ditemukan!');
                 return;
             }
-            
+
             if (!modal) {
                 console.error('Modal tidak ditemukan!');
                 alert('Error: Modal tidak ditemukan!');
                 return;
             }
-            
+
             // Show modal
             document.body.style.overflow = 'hidden';
             overlay.style.display = 'flex';
             overlay.classList.add('active');
-            
+
             // Focus first input
-            setTimeout(function() {
+            setTimeout(function () {
                 const firstInput = document.getElementById('nrpInput');
                 if (firstInput) {
                     firstInput.focus();
                 }
             }, 200);
-            
+
             console.log('Modal seharusnya sudah terbuka');
         }
 
         function tutupModal() {
             console.log('tutupModal dipanggil');
-            
+
             const overlay = document.getElementById('overlay');
-            
+
             if (overlay) {
                 overlay.classList.remove('active');
                 overlay.style.display = 'none';
                 document.body.style.overflow = '';
             }
-            
+
             console.log('Modal seharusnya sudah tertutup');
         }
 
@@ -818,12 +889,12 @@ $satkerOptions = [
             const filterSatker = document.getElementById('filterSatker').value;
             const filterRole = document.getElementById('filterRole').value;
 
-            filteredData = originalData.filter(function(person) {
-                const matchSearch = !searchTerm || 
-                    person.nama.toLowerCase().includes(searchTerm) || 
+            filteredData = originalData.filter(function (person) {
+                const matchSearch = !searchTerm ||
+                    person.nama.toLowerCase().includes(searchTerm) ||
                     person.nrp.toLowerCase().includes(searchTerm) ||
                     person.jabatan.toLowerCase().includes(searchTerm);
-                
+
                 const matchPangkat = !filterPangkat || person.pangkat === filterPangkat;
                 const matchKorps = !filterKorps || person.korps === filterKorps;
                 const matchSatker = !filterSatker || person.satker === filterSatker;
@@ -839,7 +910,7 @@ $satkerOptions = [
         function renderTable() {
             const tbody = document.getElementById('personelTableBody');
             const emptyState = document.getElementById('emptyState');
-            
+
             if (filteredData.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'block';
@@ -847,13 +918,13 @@ $satkerOptions = [
             }
 
             emptyState.style.display = 'none';
-            
+
             let tableHTML = '';
             for (let index = 0; index < filteredData.length; index++) {
                 const person = filteredData[index];
                 const roleClass = person.role === 'admin' ? 'danger' : 'primary';
                 const personJSON = JSON.stringify(person).replace(/"/g, '&quot;');
-                
+
                 tableHTML += `
                     <tr>
                         <td>${index + 1}</td>
@@ -875,7 +946,7 @@ $satkerOptions = [
                     </tr>
                 `;
             }
-            
+
             tbody.innerHTML = tableHTML;
         }
 
@@ -894,54 +965,54 @@ $satkerOptions = [
         }
 
         // INITIALIZATION - KETIKA HALAMAN LOADED
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('DOM Content Loaded');
-            
+
             // Initialize table
             renderTable();
             updateStats();
-            
+
             // Search with delay
             let searchTimeout;
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                searchInput.addEventListener('input', function() {
+                searchInput.addEventListener('input', function () {
                     clearTimeout(searchTimeout);
                     searchTimeout = setTimeout(applyFilters, 300);
                 });
             }
-            
+
             // Filter dropdowns
             const filterElements = ['filterPangkat', 'filterKorps', 'filterSatker', 'filterRole'];
-            filterElements.forEach(function(id) {
+            filterElements.forEach(function (id) {
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('change', applyFilters);
                 }
             });
-            
+
             // Modal event listeners
             const overlay = document.getElementById('overlay');
             const modalForm = document.getElementById('modalForm');
-            
+
             if (overlay) {
                 // Close modal on overlay click
-                overlay.addEventListener('click', function(e) {
+                overlay.addEventListener('click', function (e) {
                     if (e.target === overlay) {
                         tutupModal();
                     }
                 });
             }
-            
+
             if (modalForm) {
                 // Prevent modal content click from closing
-                modalForm.addEventListener('click', function(e) {
+                modalForm.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
             }
-            
+
             // Close modal on ESC key
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     const overlayElement = document.getElementById('overlay');
                     if (overlayElement && overlayElement.classList.contains('active')) {
@@ -949,7 +1020,7 @@ $satkerOptions = [
                     }
                 }
             });
-            
+
             console.log('Semua event listener sudah di-setup');
             console.log('Modal elements check:');
             console.log('   - Overlay:', overlay ? '✅' : '❌');
@@ -966,12 +1037,12 @@ $satkerOptions = [
                 { id: 'satkerInput', name: 'Satker' },
                 { id: 'roleInput', name: 'Role' }
             ];
-            
+
             let isValid = true;
             let errors = [];
-            
+
             // Check required fields
-            requiredFields.forEach(function(field) {
+            requiredFields.forEach(function (field) {
                 const element = document.getElementById(field.id);
                 if (element && !element.value.trim()) {
                     isValid = false;
@@ -981,11 +1052,11 @@ $satkerOptions = [
                     element.style.borderColor = '#ced4da';
                 }
             });
-            
+
             // Check password for new personel
             const aksi = document.getElementById('aksiInput').value;
             const passwordInput = document.getElementById('passwordInput');
-            
+
             if (aksi === 'tambah' && passwordInput && !passwordInput.value.trim()) {
                 isValid = false;
                 errors.push('Password tidak boleh kosong untuk personel baru');
@@ -993,60 +1064,60 @@ $satkerOptions = [
             } else if (passwordInput) {
                 passwordInput.style.borderColor = '#ced4da';
             }
-            
+
             // Check NRP uniqueness
             const nrpInput = document.getElementById('nrpInput');
             const idInput = document.getElementById('idInput');
-            
+
             if (nrpInput && nrpInput.value.trim()) {
                 const currentNrp = nrpInput.value.trim();
                 const currentId = idInput ? idInput.value : '';
-                
-                const isDuplicate = originalData.some(function(person) {
+
+                const isDuplicate = originalData.some(function (person) {
                     return person.nrp === currentNrp && person.id != currentId;
                 });
-                
+
                 if (isDuplicate) {
                     isValid = false;
                     errors.push('NRP sudah digunakan oleh personel lain');
                     nrpInput.style.borderColor = '#dc3545';
                 }
             }
-            
+
             if (!isValid) {
                 alert('Terdapat kesalahan:\n\n' + errors.join('\n'));
                 return false;
             }
-            
+
             return true;
         }
 
         // Override form submission
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const modalForm = document.querySelector('#modalForm form');
             if (modalForm) {
-                modalForm.addEventListener('submit', function(e) {
+                modalForm.addEventListener('submit', function (e) {
                     console.log('Form submission validation');
-                    
+
                     if (!validateForm(this)) {
                         e.preventDefault();
                         return false;
                     }
-                    
+
                     // Show loading state
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
                         submitBtn.innerHTML = 'Menyimpan...';
                         submitBtn.disabled = true;
-                        
+
                         // Restore button if form doesn't submit (shouldn't happen in normal flow)
-                        setTimeout(function() {
+                        setTimeout(function () {
                             submitBtn.innerHTML = originalText;
                             submitBtn.disabled = false;
                         }, 5000);
                     }
-                    
+
                     console.log('✅ Form validation passed, submitting...');
                     return true;
                 });
@@ -1054,7 +1125,7 @@ $satkerOptions = [
         });
 
         // ERROR HANDLING
-        window.onerror = function(msg, url, line, col, error) {
+        window.onerror = function (msg, url, line, col, error) {
             console.error('JavaScript Error:', msg, 'at line', line);
             console.error('URL:', url);
             console.error('Error object:', error);
@@ -1077,5 +1148,5 @@ $satkerOptions = [
         });
     </script>
 </body>
+
 </html>
-                
