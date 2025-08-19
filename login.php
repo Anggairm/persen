@@ -5,33 +5,35 @@ require_once 'inc/db.php';
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nrp = trim($_POST['nrp']);
-    $password = trim($_POST['password']);
+  $nrp = trim($_POST['nrp']);
+  $password = trim($_POST['password']);
 
-    $stmt = $pdo->prepare("SELECT * FROM personel WHERE nrp = ?");
-    $stmt->execute([$nrp]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt = $pdo->prepare("SELECT * FROM personel WHERE nrp = ?");
+  $stmt->execute([$nrp]);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['nama'] = $user['nama'];
-        $_SESSION['personel_id'] = $user['id'];
+  if ($user && password_verify($password, $user['password'])) {
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['role'] = $user['role'];
+    $_SESSION['nama'] = $user['nama'];
+    $_SESSION['satker'] = $user['satker'];
+    $_SESSION['personel_id'] = $user['id'];
 
-        if ($user['role'] === 'admin') {
-            header("Location: admin/dashboard.php");
-        } else {
-            header("Location: personel/scan.php");
-        }
-        exit;
+    if ($user['role'] === 'admin' || $user['role'] === 'superadmin') {
+      header("Location: admin/dashboard.php");
     } else {
-        $error = "NRP atau Password salah!";
+      header("Location: personel/absensi_selector.php");
     }
+    exit;
+  } else {
+    $error = "NRP atau Password salah!";
+  }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg,rgb(90, 119, 248) 0%,rgb(32, 65, 255) 100%);
+      background: linear-gradient(135deg, rgb(90, 119, 248) 0%, rgb(32, 65, 255) 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -158,11 +160,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       .login-title {
         font-size: 3rem;
       }
-      
+
       .login-container {
         padding: 30px 25px;
       }
-      
+
       body {
         padding: 15px;
       }
@@ -182,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -193,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         opacity: 0;
         transform: translateY(-20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -200,18 +204,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-      20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      10%,
+      30%,
+      50%,
+      70%,
+      90% {
+        transform: translateX(-5px);
+      }
+
+      20%,
+      40%,
+      60%,
+      80% {
+        transform: translateX(5px);
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="login-header">
-  <img src="assets/css/logo.png" alt="logo" class="login-logo" style=" width: 120px; height: 120px;"/>
-  <h1 class="login-title">SIAPERS AMPUH</h1>
-  <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
-</div>
+    <h1 class="login-title">SIAPERS</h1>
+    <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
+  </div>
 
   <div class="login-container">
     <?php if ($error): ?>
@@ -222,14 +243,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form method="POST">
       <div class="input-group">
-        <input type="text" id="nrp" name="nrp" placeholder="NRP" required 
-               value="<?= isset($_POST['nrp']) ? htmlspecialchars($_POST['nrp']) : '' ?>">
+        <input type="text" id="nrp" name="nrp" placeholder="NRP" required
+          value="<?= isset($_POST['nrp']) ? htmlspecialchars($_POST['nrp']) : '' ?>">
       </div>
-      
+
       <div class="input-group">
         <input type="password" id="password" name="password" placeholder="KATA SANDI" required>
       </div>
-      
+
       <button type="submit" class="login-button">MASUK</button>
     </form>
   </div>
@@ -237,11 +258,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script>
     // Add interactive effects
     document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('focus', function() {
+      input.addEventListener('focus', function () {
         this.parentElement.style.transform = 'scale(1.02)';
       });
-      
-      input.addEventListener('blur', function() {
+
+      input.addEventListener('blur', function () {
         this.parentElement.style.transform = 'scale(1)';
       });
     });
@@ -250,4 +271,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById('nrp').focus();
   </script>
 </body>
+
 </html>
