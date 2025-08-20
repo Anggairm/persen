@@ -238,6 +238,7 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
         <div style="text-align: center;">
             <a href="personel.php" class="dashboard-button">KELOLA PERSONEL</a>
             <a href="rekap_harian.php" class="rekap-btn">REKAP HARIAN</a>
+            <a href="../index.php" class="dashboard-button">QR DASHBOARD</a>
         </div>
 
         <div class="nav-buttons">

@@ -1,17 +1,56 @@
 <?php
+session_start();
 require_once 'inc/db.php';
 
-// Hari ini
+date_default_timezone_set('Asia/Jakarta');
+
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
+    header('Location: login.php');
+    exit;
+}
+
 $tanggal = date('Y-m-d');
+$role = $_SESSION['role'];
+$satker = $_SESSION['satker'];
+
+$filterWhere = "";
+$filterJoin = "";
+$params = [];
+
+if ($role === 'admin') {
+    // Admin hanya lihat sesuai satker
+    $filterWhere = " WHERE p.satker = ? ";
+    $filterJoin = " AND p.satker = ? ";
+    $params[] = $satker;
+}
 
 // Total personel
-$total_stmt = $pdo->query("SELECT COUNT(*) FROM personel");
-$total_personel = $total_stmt->fetchColumn();
+$sqlTotal = "SELECT COUNT(*) FROM personel p" . $filterWhere;
+$stmt = $pdo->prepare($sqlTotal);
+$stmt->execute($params);
+$total_personel = $stmt->fetchColumn();
 
-// Sudah absen
-$hadir_stmt = $pdo->prepare("SELECT COUNT(*) FROM absensi WHERE tanggal = ?");
-$hadir_stmt->execute([$tanggal]);
-$jumlah_hadir = $hadir_stmt->fetchColumn();
+// Yang benar-benar HADIR (bukan TIDAK HADIR)
+$sqlHadir = "
+    SELECT COUNT(*) 
+    FROM absensi a
+    JOIN personel p ON p.id = a.personel_id
+    WHERE a.tanggal = ? AND a.status = 'HADIR'
+    $filterJoin
+";
+$paramsHadir = array_merge([$tanggal], ($role === 'admin' ? [$satker] : []));
+$stmt = $pdo->prepare($sqlHadir);
+$stmt->execute($paramsHadir);
+$jumlah_hadir = $stmt->fetchColumn();
+
+// // Total personel
+// $total_stmt = $pdo->query("SELECT COUNT(*) FROM personel");
+// $total_personel = $total_stmt->fetchColumn();
+
+// // Sudah absen
+// $hadir_stmt = $pdo->prepare("SELECT COUNT(*) FROM absensi WHERE tanggal = ?");
+// $hadir_stmt->execute([$tanggal]);
+// $jumlah_hadir = $hadir_stmt->fetchColumn();
 
 // Belum absen
 $jumlah_kurang = $total_personel - $jumlah_hadir;
@@ -32,15 +71,29 @@ QRcode::png($qr_data, $qr_file, QR_ECLEVEL_H, 8);
 
 // Array bulan Indonesia
 $bulan_indonesia = [
-    1 => 'JANUARI', 2 => 'FEBRUARI', 3 => 'MARET', 4 => 'APRIL',
-    5 => 'MEI', 6 => 'JUNI', 7 => 'JULI', 8 => 'AGUSTUS',
-    9 => 'SEPTEMBER', 10 => 'OKTOBER', 11 => 'NOVEMBER', 12 => 'DESEMBER'
+    1 => 'JANUARI',
+    2 => 'FEBRUARI',
+    3 => 'MARET',
+    4 => 'APRIL',
+    5 => 'MEI',
+    6 => 'JUNI',
+    7 => 'JULI',
+    8 => 'AGUSTUS',
+    9 => 'SEPTEMBER',
+    10 => 'OKTOBER',
+    11 => 'NOVEMBER',
+    12 => 'DESEMBER'
 ];
 
 // Array hari Indonesia
 $hari_indonesia = [
-    'Sunday' => 'MINGGU', 'Monday' => 'SENIN', 'Tuesday' => 'SELASA',
-    'Wednesday' => 'RABU', 'Thursday' => 'KAMIS', 'Friday' => 'JUMAT', 'Saturday' => 'SABTU'
+    'Sunday' => 'MINGGU',
+    'Monday' => 'SENIN',
+    'Tuesday' => 'SELASA',
+    'Wednesday' => 'RABU',
+    'Thursday' => 'KAMIS',
+    'Friday' => 'JUMAT',
+    'Saturday' => 'SABTU'
 ];
 
 $hari_en = date('l');
@@ -51,6 +104,7 @@ $tahun = date('Y');
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -266,7 +320,9 @@ $tahun = date('Y');
                 gap: 25px;
             }
 
-            .date-section, .stat-box, .qr-container {
+            .date-section,
+            .stat-box,
+            .qr-container {
                 padding: 20px;
             }
 
@@ -293,7 +349,9 @@ $tahun = date('Y');
                 gap: 20px;
             }
 
-            .date-section, .stat-box, .qr-container {
+            .date-section,
+            .stat-box,
+            .qr-container {
                 padding: 15px;
                 border-radius: 15px;
             }
@@ -314,9 +372,17 @@ $tahun = date('Y');
             transform: translateY(30px);
         }
 
-        .stat-box:nth-child(1) { animation-delay: 0.1s; }
-        .stat-box:nth-child(2) { animation-delay: 0.2s; }
-        .stat-box:nth-child(3) { animation-delay: 0.3s; }
+        .stat-box:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .stat-box:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-box:nth-child(3) {
+            animation-delay: 0.3s;
+        }
 
         .qr-container {
             animation: zoomIn 1s ease-out 0.4s forwards;
@@ -325,8 +391,13 @@ $tahun = date('Y');
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideUp {
@@ -355,20 +426,27 @@ $tahun = date('Y');
         }
 
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <div class="header" style="display: flex; align-items: center; justify-content: center; gap: 30px; text-align: center;">
-    <img src="assets/css/logo.png" alt="Logo" style="width: 120px; height: 120px;">
-    <div>
-        <h1 class="main-title" style="margin: 0;">SIAPERS AMPUH</h1>
-        <p class="subtitle" style="margin: 0;">APLIKASI ABSENSI PERSONEL TNI AU AMPUH</p>
-    </div>
-</div>
+        <div class="header"
+            style="display: flex; align-items: center; justify-content: center; gap: 30px; text-align: center;">
+            <img src="assets/css/logo.png" alt="Logo" style="width: 120px; height: 120px;">
+            <div>
+                <h1 class="main-title" style="margin: 0;">SIAPERS AMPUH</h1>
+                <p class="subtitle" style="margin: 0;">APLIKASI ABSENSI PERSONEL TNI AU AMPUH</p>
+            </div>
+        </div>
 
 
         <div class="content">
@@ -405,7 +483,7 @@ $tahun = date('Y');
     <script>
         // Auto refresh animation
         let refreshTimer = 60;
-        
+
         setInterval(() => {
             refreshTimer--;
             if (refreshTimer <= 0) {
@@ -414,14 +492,14 @@ $tahun = date('Y');
                     location.reload();
                 }, 500);
             }
-                    }, 1000);
+        }, 1000);
 
         // Add loading effect for stats
         document.querySelectorAll('.stat-number').forEach((el, index) => {
             const finalValue = parseInt(el.textContent);
             let currentValue = 0;
             const increment = Math.ceil(finalValue / 30);
-            
+
             const timer = setInterval(() => {
                 currentValue += increment;
                 if (currentValue >= finalValue) {
@@ -433,4 +511,5 @@ $tahun = date('Y');
         });
     </script>
 </body>
+
 </html>
