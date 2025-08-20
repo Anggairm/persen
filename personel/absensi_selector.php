@@ -8,8 +8,8 @@ if (!isset($_SESSION['personel_id'])) {
 date_default_timezone_set("Asia/Jakarta");
 $jam_sekarang = date("H:i");
 
-$disable_masuk  = ($jam_sekarang < "08:00"); // disable jika lewat jam 8
-$enable_keluar  = ($jam_sekarang >= "08:00"); // enable jika jam >= 15
+$disable_masuk  = ($jam_sekarang < "08:00"); 
+$enable_keluar  = ($jam_sekarang >= "15:00"); 
 ?>
 
 <!DOCTYPE html>
@@ -28,7 +28,7 @@ $enable_keluar  = ($jam_sekarang >= "08:00"); // enable jika jam >= 15
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg,rgb(90, 119, 248) 0%,rgb(32, 65, 255) 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
