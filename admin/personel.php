@@ -679,7 +679,7 @@ $satkerOptions = [
                         <th>Pangkat</th>
                         <th>Korps</th>
                         <th>Jabatan</th>
-                        <th>Sub Dinas/Bagian</th>
+                        <th>Satker</th>
                         <th>Role</th>
                         <th>Aksi</th>
                     </tr>
@@ -751,7 +751,7 @@ $satkerOptions = [
                 <label for="jabatanInput">Jabatan:</label>
                 <input type="text" name="jabatan" id="jabatanInput">
 
-                <label for="satkerInput">Sub Dinas/Bagian:</label>
+                <label for="satkerInput">Satker:</label>
                 <select name="satker" id="satkerInput" required>
                     <?php foreach ($satkerOptions as $s): ?>
                         <option value="<?= $s ?>"><?= $s ?></option>

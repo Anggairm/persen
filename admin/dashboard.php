@@ -249,11 +249,12 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
 
         <form id="formKeterangan" action="simpan_keterangan.php" method="POST">
             <input type="hidden" name="data" id="keteranganData">
+            <input type="hidden" name="deletedIds" id="deletedIds">
 
             <?php foreach ($kategori as $ket): ?>
                 <div class="accordion-section" id="<?= strtolower(str_replace(' ', '-', $ket)) ?>">
                     <h2><?= $ket ?></h2>
-                    <table>
+                    <table id="tableKeterangan" border="1" cellpadding="5" cellspacing="0">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -315,6 +316,49 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
     </div>
 
     <script>
+
+        document.getElementById("formKeterangan").addEventListener("submit", function (e) {
+            // contoh ambil tanggal hari ini
+            const today = new Date().toISOString().split("T")[0];
+
+            // Kumpulkan data keterangan dari tabel
+            let dataArray = [];
+
+            document.querySelectorAll("tbody").forEach(tbody => {
+                const kategori = tbody.getAttribute("data-kategori");
+
+                tbody.querySelectorAll("tr.existing-entry").forEach(tr => {
+                    dataArray.push({
+                        id: tr.dataset.existingId,
+                        isExisting: true,
+                        kategori: kategori,
+                        keterangan: tr.querySelector("input[data-keterangan]").value,
+                        nama: tr.querySelector("td[data-nama]").dataset.nama
+                    });
+                });
+
+                // Jika ada personel baru yang dipilih dari dropdown, tambahkan juga
+                tbody.querySelectorAll("tr.new-entry").forEach(tr => {
+                    dataArray.push({
+                        id: tr.querySelector("td[data-nama]").dataset.id,
+                        isExisting: false,
+                        kategori: kategori,
+                        keterangan: tr.querySelector("input[data-keterangan]").value,
+                        nama: tr.querySelector("td[data-nama]").dataset.nama
+                    });
+                });
+            });
+
+            // Buat payload
+            const payload = {
+                tanggal: today,
+                data: dataArray
+            };
+
+            // Masukkan ke hidden input
+            document.getElementById("keteranganData").value = JSON.stringify(payload);
+        });
+
         // Set untuk tracking nama yang sudah dipilih (termasuk yang existing)
         const semuaNamaTerpilih = new Set();
 
@@ -347,11 +391,11 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                <td>${rowCount}</td>
-                <td data-nama="${nama}" data-id="${id}">${nama}</td>
-                <td><input type="text" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
-                <td><button type="button" class="hapus-btn">Hapus</button></td>
-            `;
+    <td>${rowCount}</td>
+    <td data-nama="${nama}" data-id="${id}">${nama}</td>
+    <td><input type="text" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
+    <td><button type="button" class="hapus-btn">Hapus</button></td>
+    `;
                     kategoriTable.insertBefore(tr, kategoriTable.querySelector('.dropdown-row'));
 
                     document.querySelectorAll(`.dropdown-menu li[data-id="${id}"]`).forEach(li => li.remove());
@@ -363,24 +407,15 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
             if (e.target.classList.contains('hapus-btn')) {
                 const tr = e.target.closest('tr');
                 const id = tr.querySelector('td[data-id]')?.getAttribute('data-id');
-                const nama = tr.querySelector('td[data-nama]')?.textContent;
 
-                if (id && nama) {
-                    semuaNamaTerpilih.delete(id);
-
-                    // Jika ini bukan existing entry, tambahkan kembali ke dropdown
-                    if (!tr.hasAttribute('data-existing-id')) {
-                        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                            const li = document.createElement('li');
-                            li.textContent = nama;
-                            li.dataset.id = id;
-                            menu.appendChild(li);
-                        });
-                    }
+                // jika existing, tambahkan ke daftar deletedIds
+                if (tr.hasAttribute('data-existing-id') && id) {
+                    let deleted = JSON.parse(document.getElementById("deletedIds").value || "[]");
+                    deleted.push(id);
+                    document.getElementById("deletedIds").value = JSON.stringify(deleted);
                 }
-                tr.remove();
 
-                // Update nomor urut
+                tr.remove();
                 updateRowNumbers();
             }
         });
@@ -427,14 +462,16 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
             });
 
             console.log('Data yang akan dikirim:', hasil); // Debug log
-            document.getElementById('keteranganData').value = JSON.stringify(hasil);
-
-            // Submit form manually after setting data
             if (hasil.length > 0) {
-                this.submit();
+                document.getElementById('keteranganData').value = JSON.stringify(hasil);
+                e.target.submit(); // pastikan form terkirim
+            } else if (JSON.parse(document.getElementById("deletedIds").value || "[]").length > 0) {
+                // kalau tidak ada data baru tapi ada data yang dihapus
+                e.target.submit();
             } else {
-                alert('Tidak ada data keterangan untuk disimpan!');
+                alert('Tidak ada data keterangan untuk disimpan atau dihapus!');
             }
+
         });
 
         function scrollToSection(id) {
