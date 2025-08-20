@@ -413,12 +413,10 @@
             $frameLine = str_repeat ("\0", $width);
             $frame = array_fill(0, $width, $frameLine);
 
-            // Finder pattern$width = count($frame); // Ambil ukuran frame QR Code
-
-self::putFinderPattern($frame, 0, 0);                  // Kiri atas
-self::putFinderPattern($frame, $width - 7, 0);         // Kanan atas
-self::putFinderPattern($frame, 0, $width - 7);         // Kiri bawah
-
+            // Finder pattern
+            self::putFinderPattern($frame, 0, 0);
+            self::putFinderPattern($frame, $width - 7, 0);
+            self::putFinderPattern($frame, 0, $width - 7);
             
             // Separator
             $yOffset = $width - 7;

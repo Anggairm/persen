@@ -187,7 +187,7 @@ table th, table td {
 }
 
 table th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, rgb(90, 119, 248) 0%,rgb(32, 65, 255) 100%);
     font-weight: 600;
     color: white;
     text-transform: uppercase;

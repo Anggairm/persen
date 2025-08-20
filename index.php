@@ -149,8 +149,8 @@ $tahun = date('Y');
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -230,9 +230,9 @@ $tahun = date('Y');
         }
 
         .qr-container img {
-            width: clamp(180px, 20vw, 250px);
-            height: clamp(180px, 20vw, 250px);
-            border-radius: 15px;
+            width: clamp(220px, 20vw, 295px);
+            height: clamp(220px, 20vw, 295px);
+            border-radius: 10px;
             display: block;
         }
 
@@ -299,7 +299,7 @@ $tahun = date('Y');
             }
 
             .qr-container {
-                padding: 20px;
+                padding: 15px;
             }
         }
 
@@ -362,10 +362,14 @@ $tahun = date('Y');
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1 class="main-title">SIAPERS AMPUH</h1>
-            <p class="subtitle">APLIKASI ABSENSI PERSONEL TNI AU AMPUH</p>
-        </div>
+        <div class="header" style="display: flex; align-items: center; justify-content: center; gap: 30px; text-align: center;">
+    <img src="assets/css/logo.png" alt="Logo" style="width: 120px; height: 120px;">
+    <div>
+        <h1 class="main-title" style="margin: 0;">SIAPERS AMPUH</h1>
+        <p class="subtitle" style="margin: 0;">APLIKASI ABSENSI PERSONEL TNI AU AMPUH</p>
+    </div>
+</div>
+
 
         <div class="content">
             <div class="left-section">
@@ -375,15 +379,15 @@ $tahun = date('Y');
 
                 <div class="stats-grid">
                     <div class="stat-box total">
-                        <h3 class="stat-title">JUMLAH</h3>
+                        <h2 class="stat-title">JUMLAH</h2>
                         <div class="stat-number"><?= $total_personel ?></div>
                     </div>
                     <div class="stat-box kurang">
-                        <h3 class="stat-title">KURANG</h3>
+                        <h2 class="stat-title">KURANG</h2>
                         <div class="stat-number"><?= $jumlah_kurang ?></div>
                     </div>
                     <div class="stat-box hadir">
-                        <h3 class="stat-title">HADIR</h3>
+                        <h2 class="stat-title">HADIR</h2>
                         <div class="stat-number"><?= $jumlah_hadir ?></div>
                     </div>
                 </div>
