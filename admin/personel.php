@@ -150,7 +150,8 @@ $korpsOptions = [
     'KUM'
 ];
 
-$satkerOptions = [
+// Semua opsi satker
+$allSatkerOptions = [
     'SAHLIKASAU',
     'DISOPSLATAU',
     'PUSKODALAU',
@@ -178,6 +179,17 @@ $satkerOptions = [
     'SPERSAU',
     'DISMINPERSAU'
 ];
+
+$allRoleOptions = ['user', 'admin', 'superadmin'];
+
+// Filter sesuai role
+if ($role === 'superadmin') {
+    $satkerOptions = $allSatkerOptions;
+    $roleOptions = $allRoleOptions;
+} else {
+    $satkerOptions = [$satker]; // hanya satkernya sendiri
+    $roleOptions = ['user', 'admin']; // tanpa superadmin
+}
 ?>
 
 <!DOCTYPE html>
@@ -527,6 +539,12 @@ $satkerOptions = [
             color: white;
         }
 
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+
         /* Empty state */
         .empty-state {
             text-align: center;
@@ -654,11 +672,11 @@ $satkerOptions = [
 
                 <div class="filter-group">
                     <label></label>
-                    <select id="filterRole">
+                    <select id="filterSatker">
                         <option value="">Semua Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="user">User</option>
-                        <option value="superadmin">Superadmin</option>
+                        <?php foreach ($roleOptions as $r): ?>
+                            <option value="<?= $r ?>"><?= $r ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -694,8 +712,13 @@ $satkerOptions = [
                             <td><?= htmlspecialchars($p['korps']) ?></td>
                             <td><?= htmlspecialchars($p['jabatan']) ?></td>
                             <td><?= htmlspecialchars($p['satker']) ?></td>
-                            <td><span
-                                    class="badge badge-<?= $p['role'] === 'admin' ? 'danger' : 'primary' ?>"><?= htmlspecialchars($p['role']) ?></span>
+                            <td>
+                                <span class="badge badge-<?=
+                                    $p['role'] === 'superadmin' ? 'warning' :
+                                    ($p['role'] === 'admin' ? 'danger' : 'primary')
+                                    ?>">
+                                    <?= htmlspecialchars($p['role']) ?>
+                                </span>
                             </td>
                             <td>
                                 <div class="action-buttons">
@@ -729,7 +752,7 @@ $satkerOptions = [
                 <input type="hidden" name="id" id="idInput">
 
                 <label for="nrpInput">NRP:</label>
-                <input type="text" name="nrp" id="nrpInput" required>
+                <input type="number" name="nrp" id="nrpInput" required>
 
                 <label for="namaInput">Nama Lengkap:</label>
                 <input type="text" name="nama" id="namaInput" required>
@@ -763,9 +786,9 @@ $satkerOptions = [
 
                 <label for="roleInput">Role:</label>
                 <select name="role" id="roleInput" required>
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                    <option value="superadmin">Superadmin</option>
+                    <?php foreach ($roleOptions as $r): ?>
+                        <option value="<?= $r ?>"><?= $r ?></option>
+                    <?php endforeach; ?>
                 </select>
 
                 <div class="modal-actions">
@@ -922,7 +945,16 @@ $satkerOptions = [
             let tableHTML = '';
             for (let index = 0; index < filteredData.length; index++) {
                 const person = filteredData[index];
-                const roleClass = person.role === 'admin' ? 'danger' : 'primary';
+                let roleClass;
+
+                if (person.role === 'superadmin') {
+                    roleClass = 'success'; // hijau
+                } else if (person.role === 'admin') {
+                    roleClass = 'danger'; // merah
+                } else {
+                    roleClass = 'primary'; // biru
+                }
+
                 const personJSON = JSON.stringify(person).replace(/"/g, '&quot;');
 
                 tableHTML += `
@@ -939,13 +971,14 @@ $satkerOptions = [
                             <div class="action-buttons">
                                 <button class="btn btn-warning" onclick='bukaModalEdit(${personJSON})'>Edit</button>
                                 <a href="?hapus=${person.id}" 
-                                   onclick="return confirm('Apakah Anda yakin ingin menghapus personel ini?\\n\\nNama: ${person.nama}\\nNRP: ${person.nrp}\\n\\nData yang dihapus tidak dapat dikembalikan!')" 
-                                   class="btn btn-danger">Hapus</a>
+                                onclick="return confirm('Apakah Anda yakin ingin menghapus personel ini?\\n\\nNama: ${person.nama}\\nNRP: ${person.nrp}\\n\\nData yang dihapus tidak dapat dikembalikan!')" 
+                                class="btn btn-danger">Hapus</a>
                             </div>
                         </td>
                     </tr>
                 `;
             }
+
 
             tbody.innerHTML = tableHTML;
         }
