@@ -542,7 +542,7 @@ $tahun = date('Y');
     </div>
 
     <div class="scroll-container"
-        style="width: 100%; overflow: hidden; white-space: nowrap; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); paddingTop: 20px; color:white; font-size:18px;">
+        style="width: 100%; overflow: hidden; white-space: nowrap; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); paddingTop: 50px; color:white; font-size:18px;">
 
         <div class="scroll-content" style="display: inline-block; animation: scrollRight 60s linear infinite;">
             <?php
