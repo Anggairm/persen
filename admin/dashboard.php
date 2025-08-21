@@ -278,15 +278,23 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                                             <?= htmlspecialchars($existing['pangkat'] . ' ' . $existing['korps'] . ' ' . $existing['nama']) ?>
                                         </td>
                                         <td>
-                                            <input type="text" data-keterangan class="input-keterangan" style="width:90%"
-                                                value="<?= htmlspecialchars($existing['keterangan']) ?>"
-                                                placeholder="Isi keterangan...">
+                                            <?php if ($ket === "TANPA KETERANGAN"): ?>
+                                                <input type="text" class="input-keterangan" style="width:90%" value="TANPA KETERANGAN"
+                                                    disabled>
+                                            <?php else: ?>
+                                                <input type="text" data-keterangan class="input-keterangan" style="width:90%"
+                                                    value="<?= htmlspecialchars($existing['keterangan']) ?>"
+                                                    placeholder="Isi keterangan...">
+                                            <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button type="button" class="edit-btn" onclick="editKeterangan(this)"
-                                                style="marginLeft:10px;">Edit</button>
-                                            <button type="button" class="hapus-btn" style="marginLeft:10px">Hapus</button>
+                                            <?php if ($ket !== "TANPA KETERANGAN"): ?>
+                                                <button type="button" class="edit-btn" onclick="editKeterangan(this)"
+                                                    style="margin-left:10px;">Edit</button>
+                                            <?php endif; ?>
+                                            <button type="button" class="hapus-btn" style="margin-left:10px">Hapus</button>
                                         </td>
+
                                     </tr>
                                     <?php
                                 endforeach;
@@ -392,18 +400,32 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                     const rowCount = existingRows.length + 1;
 
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-    <td>${rowCount}</td>
-    <td data-nama="${nama}" data-id="${id}">${nama}</td>
-    <td><input type="text" style="width:90%" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
-    <td><button type="button" class="hapus-btn" style="marginLeft:10px">Hapus</button></td>
-    `;
+
+                    // kalau kategori TANPA KETERANGAN -> isi otomatis, disable input
+                    if (kategori === 'TANPA KETERANGAN') {
+                        tr.innerHTML = `
+                    <td>${rowCount}</td>
+                    <td data-nama="${nama}" data-id="${id}">${nama}</td>
+                    <td><input type="text" value="TANPA KETERANGAN" class="input-keterangan" style="width:90%" disabled></td>
+                    <td><button type="button" class="hapus-btn" style="margin-left:10px">Hapus</button></td>
+                `;
+                    } else {
+                        tr.innerHTML = `
+                    <td>${rowCount}</td>
+                    <td data-nama="${nama}" data-id="${id}">${nama}</td>
+                    <td><input type="text" style="width:90%" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
+                    <td><button type="button" class="hapus-btn" style="margin-left:10px">Hapus</button></td>
+                `;
+                    }
+
                     kategoriTable.insertBefore(tr, kategoriTable.querySelector('.dropdown-row'));
 
-                    document.querySelectorAll(`.dropdown-menu li[data-id="${id}"]`).forEach(li => li.remove());
+                    // hapus item yang sudah dipilih dari semua dropdown
+                    document.querySelectorAll(`.dropdown-menu li[data-id="${id}"]`).forEach(el => el.remove());
                 }
             });
         });
+
 
         document.addEventListener('click', function (e) {
             if (e.target.classList.contains('hapus-btn')) {
@@ -449,9 +471,16 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                 tbody.querySelectorAll('tr:not(.dropdown-row)').forEach(tr => {
                     const nama = tr.querySelector('td[data-nama]')?.textContent.trim();
                     const id = tr.querySelector('td[data-id]')?.getAttribute('data-id');
-                    const keterangan = tr.querySelector('input[data-keterangan]')?.value.trim();
+                    let keteranganInput = tr.querySelector('input[data-keterangan]');
+                    let keterangan = "";
 
-                    if (nama && keterangan && id) {
+                    if (keteranganInput) {
+                        keterangan = keteranganInput.value.trim();
+                    } else if (kategori === "TANPA KETERANGAN") {
+                        keterangan = "TANPA KETERANGAN";
+                    }
+
+                    if (nama && id) {
                         hasil.push({
                             id: id,
                             nama: nama,
@@ -460,7 +489,9 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                             isExisting: tr.hasAttribute('data-existing-id')
                         });
                     }
+
                 });
+
             });
 
             console.log('Data yang akan dikirim:', hasil); // Debug log
