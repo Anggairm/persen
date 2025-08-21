@@ -96,6 +96,35 @@ $hari_indonesia = [
     'Saturday' => 'SABTU'
 ];
 
+$allSatkerOptions = [
+    'SAHLIKASAU',
+    'DISOPSLATAU',
+    'PUSKODALAU',
+    'DISPENAU',
+    'INSPEKTORAT JENDERAL',
+    'PUSLAIKLAMBANGJA',
+    'DISPAMSANAU',
+    'SOPSAU',
+    'DISBANGOPSAU',
+    'SKOMLEKAU',
+    'SRENAAU',
+    'DISADAAU',
+    'SLOGAU',
+    'DISAERO',
+    'DISKOMLEKAU',
+    'DISKONSAU',
+    'DENMABESAU',
+    'DISINFOLAHTAAU',
+    'DISKUAU',
+    'SETUMAU',
+    'DISWATPERS',
+    'SINTELAU',
+    'DISDIKAU',
+    'DISKESAU',
+    'SPERSAU',
+    'DISMINPERSAU'
+];
+
 $hari_en = date('l');
 $hari = $hari_indonesia[$hari_en];
 $tanggal_format = date('j');
@@ -109,7 +138,7 @@ $tahun = date('Y');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIAPERS - Absensi Hari Ini</title>
-    <meta http-equiv="refresh" content="15"> <!-- Refresh otomatis setiap 60 detik -->
+    <meta http-equiv="refresh" content="120"> <!-- Refresh otomatis setiap 60 detik -->
     <style>
         * {
             margin: 0;
@@ -133,7 +162,7 @@ $tahun = date('Y');
 
         .header {
             text-align: center;
-            padding: 40px 20px;
+            padding: 10px 20px;
             background: linear-gradient(45deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
             backdrop-filter: blur(10px);
         }
@@ -204,7 +233,7 @@ $tahun = date('Y');
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
             transition: all 0.3s ease;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -434,6 +463,38 @@ $tahun = date('Y');
                 transform: translateX(100%);
             }
         }
+
+        .scroll-container {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 0px;
+            padding: 15px;
+            color: white;
+            font-family: sans-serif;
+        }
+
+        .scroll-row {
+            display: inline-block;
+            margin-right: 50px;
+            /* jarak antar baris */
+            animation: scrollRight 60s linear infinite;
+        }
+
+        /* Animasi geser */
+        @keyframes scrollRight {
+            0% {
+                transform: translateX(100vw);
+                /* mulai dari luar kanan */
+            }
+
+            100% {
+                transform: translateX(-100%);
+                /* keluar ke kiri */
+            }
+        }
     </style>
 </head>
 
@@ -480,9 +541,46 @@ $tahun = date('Y');
         </div>
     </div>
 
+    <div class="scroll-container"
+        style="width: 100%; overflow: hidden; white-space: nowrap; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); paddingTop: 20px; color:white; font-size:18px;">
+
+        <div class="scroll-content" style="display: inline-block; animation: scrollRight 60s linear infinite;">
+            <?php
+            $satkerCounts = [];
+            $stmt = $pdo->prepare("SELECT satker, COUNT(*) as count FROM personel GROUP BY satker");
+            $stmt->execute();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $satkerCounts[$row['satker']] = $row['count'];
+            }
+
+            // Ambil jumlah hadir per satker
+            $stmtHadir = $pdo->prepare("
+            SELECT p.satker, COUNT(*) as hadir_count 
+            FROM absensi a
+            JOIN personel p ON p.id = a.personel_id
+            WHERE a.tanggal = ? AND a.status = 'HADIR'
+            GROUP BY p.satker
+        ");
+            $stmtHadir->execute([$tanggal]);
+            $hadirCounts = $stmtHadir->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            // Tampilkan data satker dalam format teks berjalan
+            $no = 1;
+            foreach ($allSatkerOptions as $satker) {
+                $count = isset($satkerCounts[$satker]) ? $satkerCounts[$satker] : 0;
+                $hadirCount = isset($hadirCounts[$satker]) ? $hadirCounts[$satker] : 0;
+                echo "{$satker} {$hadirCount}/{$count} &nbsp; | &nbsp; ";
+                $no++;
+            }
+            ?>
+        </div>
+    </div>
+
+
     <script>
-        // Auto refresh animation
-        let refreshTimer = 60;
+        // Atur waktu refresh dalam menit
+        let refreshMinutes = 2;
+        let refreshTimer = refreshMinutes * 60; // konversi ke detik
 
         setInterval(() => {
             refreshTimer--;
@@ -494,7 +592,7 @@ $tahun = date('Y');
             }
         }, 1000);
 
-        // Add loading effect for stats
+        // Efek animasi angka
         document.querySelectorAll('.stat-number').forEach((el, index) => {
             const finalValue = parseInt(el.textContent);
             let currentValue = 0;
@@ -510,6 +608,7 @@ $tahun = date('Y');
             }, 50 + (index * 20));
         });
     </script>
+
 </body>
 
 </html>
