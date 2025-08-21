@@ -672,7 +672,7 @@ if ($role === 'superadmin') {
 
                 <div class="filter-group">
                     <label></label>
-                    <select id="filterSatker">
+                    <select id="filterRole">
                         <option value="">Semua Role</option>
                         <?php foreach ($roleOptions as $r): ?>
                             <option value="<?= $r ?>"><?= $r ?></option>
