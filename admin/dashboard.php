@@ -278,13 +278,14 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                                             <?= htmlspecialchars($existing['pangkat'] . ' ' . $existing['korps'] . ' ' . $existing['nama']) ?>
                                         </td>
                                         <td>
-                                            <input type="text" data-keterangan class="input-keterangan"
+                                            <input type="text" data-keterangan class="input-keterangan" style="width:90%"
                                                 value="<?= htmlspecialchars($existing['keterangan']) ?>"
                                                 placeholder="Isi keterangan...">
                                         </td>
                                         <td>
-                                            <button type="button" class="edit-btn" onclick="editKeterangan(this)">Edit</button>
-                                            <button type="button" class="hapus-btn">Hapus</button>
+                                            <button type="button" class="edit-btn" onclick="editKeterangan(this)"
+                                                style="marginLeft:10px;">Edit</button>
+                                            <button type="button" class="hapus-btn" style="marginLeft:10px">Hapus</button>
                                         </td>
                                     </tr>
                                     <?php
@@ -394,8 +395,8 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                     tr.innerHTML = `
     <td>${rowCount}</td>
     <td data-nama="${nama}" data-id="${id}">${nama}</td>
-    <td><input type="text" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
-    <td><button type="button" class="hapus-btn">Hapus</button></td>
+    <td><input type="text" style="width:90%" data-keterangan class="input-keterangan" placeholder="Isi keterangan..."></td>
+    <td><button type="button" class="hapus-btn" style="marginLeft:10px">Hapus</button></td>
     `;
                     kategoriTable.insertBefore(tr, kategoriTable.querySelector('.dropdown-row'));
 
