@@ -25,10 +25,26 @@ $jam = date('H:i:s');
 $personel_id = $_SESSION['personel_id'];
 
 // Cek apakah QR sesuai (misalnya berisi tanggal hari ini)
+// if ($qr !== $tanggal) {
+//     echo json_encode(['success' => false, 'message' => 'QR tidak valid']);
+//     exit;
+// }
+
+// Cek apakah QR sesuai (misalnya berisi tanggal hari ini)
 if ($qr !== $tanggal) {
-    echo json_encode(['success' => false, 'message' => 'QR tidak valid']);
+    echo json_encode([
+        'success' => false,
+        'message' => 'QR tidak valid',
+        'debug' => [
+            'qr' => $qr,
+            'tanggal_server' => $tanggal,
+            'timezone' => date_default_timezone_get(),
+            'server_time' => date('Y-m-d H:i:s')
+        ]
+    ]);
     exit;
 }
+
 
 // Cek apakah sudah absen sebelumnya hari ini
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM absensi WHERE personel_id = ? AND tanggal = ?");
