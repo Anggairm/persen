@@ -465,16 +465,23 @@ $tahun = date('Y');
         }
 
         .scroll-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             overflow: hidden;
             white-space: nowrap;
-            width: 100%;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 0px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             padding: 15px;
             color: white;
-            font-family: sans-serif;
+            font-size: 18px;
+            z-index: 999;
+            /* biar ga ketimpa konten lain */
         }
+
 
         .scroll-row {
             display: inline-block;
@@ -541,9 +548,7 @@ $tahun = date('Y');
         </div>
     </div>
 
-    <div class="scroll-container"
-        style="width: 100%; overflow: hidden; white-space: nowrap; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); paddingTop: 50px; color:white; font-size:18px;">
-
+    <div class="scroll-container">
         <div class="scroll-content" style="display: inline-block; animation: scrollRight 60s linear infinite;">
             <?php
             $satkerCounts = [];
@@ -553,7 +558,6 @@ $tahun = date('Y');
                 $satkerCounts[$row['satker']] = $row['count'];
             }
 
-            // Ambil jumlah hadir per satker
             $stmtHadir = $pdo->prepare("
             SELECT p.satker, COUNT(*) as hadir_count 
             FROM absensi a
@@ -564,17 +568,15 @@ $tahun = date('Y');
             $stmtHadir->execute([$tanggal]);
             $hadirCounts = $stmtHadir->fetchAll(PDO::FETCH_KEY_PAIR);
 
-            // Tampilkan data satker dalam format teks berjalan
-            $no = 1;
             foreach ($allSatkerOptions as $satker) {
                 $count = isset($satkerCounts[$satker]) ? $satkerCounts[$satker] : 0;
                 $hadirCount = isset($hadirCounts[$satker]) ? $hadirCounts[$satker] : 0;
                 echo "{$satker} {$hadirCount}/{$count} &nbsp; | &nbsp; ";
-                $no++;
             }
             ?>
         </div>
     </div>
+
 
 
     <script>
