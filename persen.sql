@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 14 Agu 2025 pada 04.30
+-- Waktu pembuatan: 02 Sep 2025 pada 09.40
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -45,13 +45,10 @@ CREATE TABLE `absensi` (
 INSERT INTO `absensi` (`id`, `personel_id`, `tanggal`, `jam`, `keluar`, `status`, `kategori`, `keterangan`) VALUES
 (2, 4, '2025-08-06', '04:33:34', '00:00:00', 'HADIR', NULL, NULL),
 (3, 4, '2025-08-07', '09:23:52', '00:00:00', 'HADIR', NULL, NULL),
-(4, 9, '2025-08-07', '09:27:11', '00:00:00', 'HADIR', NULL, NULL),
 (5, 6, '2025-08-07', '09:29:38', '00:00:00', 'HADIR', NULL, NULL),
 (6, 4, '2025-08-08', '06:05:16', '00:00:00', 'HADIR', NULL, NULL),
 (7, 6, '2025-08-08', '11:08:50', '00:00:00', 'HADIR', NULL, NULL),
-(8, 9, '2025-08-08', '11:11:03', '00:00:00', 'HADIR', NULL, NULL),
 (12, 4, '2025-08-11', '17:11:28', '00:00:00', 'HADIR', NULL, NULL),
-(13, 9, '2025-08-11', '22:36:52', '00:00:00', 'TIDAK HADIR', 'DINAS DALAM', 'PIKET'),
 (14, 1, '2025-08-11', '15:49:28', '00:00:00', 'TIDAK HADIR', 'CUTI', 'hjvjhvjvhjv'),
 (15, 5, '2025-08-11', '15:49:56', '00:00:00', 'TIDAK HADIR', 'IZIN', 'hvhjjhvjhvhj'),
 (16, 6, '2025-08-11', '15:49:56', '00:00:00', 'TIDAK HADIR', 'SAKIT', 'vhjvj'),
@@ -59,7 +56,16 @@ INSERT INTO `absensi` (`id`, `personel_id`, `tanggal`, `jam`, `keluar`, `status`
 (25, 1, '2025-08-12', '14:22:56', '00:00:00', 'TIDAK HADIR', 'DINAS DALAM', 'PIKET MURAI'),
 (26, 4, '2025-08-12', '09:27:19', '14:28:58', 'HADIR', NULL, NULL),
 (27, 10, '2025-08-12', '14:30:00', '00:00:00', 'TIDAK HADIR', 'DINAS LUAR', 'OPSINFO'),
-(28, 6, '2025-08-12', '15:02:53', '00:00:00', 'HADIR', NULL, NULL);
+(28, 6, '2025-08-12', '15:02:53', '00:00:00', 'HADIR', NULL, NULL),
+(29, 1, '2025-08-19', '14:38:38', '00:00:00', 'TIDAK HADIR', 'DINAS DALAM', 'PIKET MURAI'),
+(30, 5, '2025-08-19', '14:42:36', '00:00:00', 'TIDAK HADIR', 'DINAS LUAR', 'PERNIKA'),
+(31, 6, '2025-08-19', '14:43:49', '00:00:00', 'TIDAK HADIR', 'BANTUAN PERSONEL', 'BP SPO'),
+(39, 6, '2025-08-21', '09:22:35', '00:00:00', 'HADIR', NULL, NULL),
+(41, 1, '2025-08-21', '15:08:45', '00:00:00', 'TIDAK HADIR', 'IZIN', 'MENIKAH'),
+(45, 6, '2025-08-22', '09:29:48', '00:00:00', 'HADIR', NULL, NULL),
+(46, 1, '2025-08-26', '16:05:25', '00:00:00', 'TIDAK HADIR', 'IZIN', 'CUTI TAHUNAN'),
+(47, 6, '2025-08-26', '16:05:25', '00:00:00', 'TIDAK HADIR', 'SAKIT', 'SAKIT'),
+(48, 5, '2025-08-26', '16:05:25', '00:00:00', 'TIDAK HADIR', 'TANPA KETERANGAN', 'TANPA KETERANGAN');
 
 -- --------------------------------------------------------
 
@@ -132,16 +138,16 @@ CREATE TABLE `personel` (
 --
 
 INSERT INTO `personel` (`id`, `nrp`, `nama`, `pangkat`, `korps`, `jabatan`, `satker`, `password`, `role`) VALUES
-(1, '561289', 'Komang', 'LETDA', 'LEK', 'Pama', 'LATKER', '$2y$10$g7dRGuK7oACZnMdc2hDDzu/mx4IIRJBRhHz0wAUXK5uQq6ZrMBqV.', 'admin'),
-(4, '558899', 'Setyo', 'LETDA', 'LEK', 'Ps.Kaur', 'SUKDISSIDUKLOG', '$2y$10$ZVAMyycInN.8ZviFL5ET/.mr96pSa2CLgGcKAWha2gzM9eZ6WiW7m', 'user'),
-(5, '561972', 'Teguh', 'LETDA', 'LEK', 'Pama', 'LATKER', '$2y$10$UaFC4/QbwOvArPf.iKipWO/Ty7HT0tfRyjr9ecIOrKPiSRhV1AC8u', 'user'),
-(6, '561284', 'Gutri', 'LETDA', 'LEK', 'Pama', 'LATKER', '$2y$10$jKjeEYUjh4XR6Jv.JU9faeIRMAO2dkfThuoYVc1z3oz7RlUbNOmAG', 'user'),
-(9, '561970', 'Arramzy', 'LETDA', 'LEK', 'Pama', 'LATKER', '$2y$10$YBpG7V71gCSSLihWNHE0tOPFVs8MWniZbWbS7xnpjNWI7FIedt/ny', 'user'),
-(10, '561974', 'Nathans', 'LETDA', 'LEK', 'Pama', 'LATKER', '$2y$10$YVqBhjlWLuWtcAHxIKBzWuAM7nJaLD7S4q5FoYArALOTAgBp2mNpO', 'admin'),
-(125, '555337', 'Tiara Septian Adi Prakasa', 'LETDA', 'LEK', 'Kaurrops apljar subsiops pustassisinfo', 'PUSTASISINFO', '$2y$10$YvmVISVKC.cHpM1AAalQYeZ5sn3DSiDitoZk4R.X/azSPj16aBhwO', 'user'),
-(354, '555333', 'Ramadhan', 'LETDA', 'ADM', 'Kaur', 'DISDIK', '$2y$10$aFY96IKWzm6pYOrLVB1d.eE4BwjSYZTyiwYnEhzz33ag0/nYf91Am', 'user'),
-(355, '123123', 'Rizal', 'LETDA', 'ADM', 'Admin Disdik', 'DISDIK', '$2y$10$luXdACEGDtYPR8LxAwH6reAFUeiuiyfBVwJ7MFHolVAiePw7AKRyW', 'admin'),
-(356, '111222', 'SUPER ADMIN', 'MARSMA', 'LEK', 'KADISINFOLAHTAAU', 'PUSTASISINFO', '$2y$10$IyBA2BHyQZt3F0OlcQc/5OdmuE/xVGQQHR69ym3tsxQ8OlMViVfl6', 'superadmin');
+(1, '561289', 'Komang', 'LETDA', 'LEK', 'Pama', 'DISINFOLAHTAAU', '$2y$10$g7dRGuK7oACZnMdc2hDDzu/mx4IIRJBRhHz0wAUXK5uQq6ZrMBqV.', 'user'),
+(4, '558899', 'Setyo', 'LETDA', 'LEK', 'Ps.Kaur', 'DISINFOLAHTAAU', '$2y$10$ZVAMyycInN.8ZviFL5ET/.mr96pSa2CLgGcKAWha2gzM9eZ6WiW7m', 'user'),
+(5, '561972', 'Teguh', 'LETDA', 'LEK', 'Pama', 'DISINFOLAHTAAU', '$2y$10$UaFC4/QbwOvArPf.iKipWO/Ty7HT0tfRyjr9ecIOrKPiSRhV1AC8u', 'user'),
+(6, '561284', 'Gutri', 'LETDA', 'LEK', 'Pama', 'DISINFOLAHTAAU', '$2y$10$6kpK7W6bYTqjlhJcO0Un.OFenhOYVrf3iVwCZDwtztHHtykEmnvz.', 'user'),
+(10, '561974', 'Nathans', 'LETDA', 'LEK', 'Pama', 'DISINFOLAHTAAU', '$2y$10$YVqBhjlWLuWtcAHxIKBzWuAM7nJaLD7S4q5FoYArALOTAgBp2mNpO', 'admin'),
+(125, '555337', 'Tiara Septian Adi Prakasa', 'LETDA', 'LEK', 'Kaurrops apljar subsiops pustassisinfo', 'DISINFOLAHTAAU', '$2y$10$YvmVISVKC.cHpM1AAalQYeZ5sn3DSiDitoZk4R.X/azSPj16aBhwO', 'user'),
+(354, '555333', 'Ramadhan', 'LETDA', 'ADM', 'Kaur', 'DISDIKAU', '$2y$10$aFY96IKWzm6pYOrLVB1d.eE4BwjSYZTyiwYnEhzz33ag0/nYf91Am', 'user'),
+(355, '123123', 'Rizal', 'LETDA', 'ADM', 'Admin Disdik', 'DISDIKAU', '$2y$10$luXdACEGDtYPR8LxAwH6reAFUeiuiyfBVwJ7MFHolVAiePw7AKRyW', 'admin'),
+(356, '111222', 'SUPER ADMIN', 'MARSMA', 'LEK', 'KADISINFOLAHTAAU', 'DISINFOLAHTAAU', '$2y$10$IyBA2BHyQZt3F0OlcQc/5OdmuE/xVGQQHR69ym3tsxQ8OlMViVfl6', 'superadmin'),
+(357, '561285', 'Nasution', 'LETDA', 'LEK', 'LATKER', 'DISINFOLAHTAAU', '$2y$10$FhadZ8hSHkOtNWuuhzNCduBXHdjhMMdeB.jWS0vVW3WqlTznj56Qy', 'admin');
 
 -- --------------------------------------------------------
 
@@ -232,7 +238,7 @@ ALTER TABLE `satker`
 -- AUTO_INCREMENT untuk tabel `absensi`
 --
 ALTER TABLE `absensi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT untuk tabel `absen_keluar`
@@ -250,7 +256,7 @@ ALTER TABLE `pangkat`
 -- AUTO_INCREMENT untuk tabel `personel`
 --
 ALTER TABLE `personel`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=357;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=358;
 
 --
 -- AUTO_INCREMENT untuk tabel `personel2`
