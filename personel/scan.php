@@ -8,9 +8,11 @@ if (!isset($_SESSION['personel_id'])) {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
     <title>Scan QR Code</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
@@ -22,7 +24,7 @@ if (!isset($_SESSION['personel_id'])) {
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg,rgb(90, 119, 248) 0%,rgb(32, 65, 255) 100%);
+            background: linear-gradient(135deg, rgb(90, 119, 248) 0%, rgb(32, 65, 255) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -174,6 +176,7 @@ if (!isset($_SESSION['personel_id'])) {
         }
     </style>
 </head>
+
 <body>
     <div class="scan-container">
         <div class="header">
@@ -199,32 +202,32 @@ if (!isset($_SESSION['personel_id'])) {
             const resultElement = document.getElementById('result');
             resultElement.innerText = "Memproses...";
             resultElement.className = "";
-            
+
             fetch('simpan_absen.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ qr: decodedText })
-})
-.then(res => res.json())
-.then(data => {
-    resultElement.innerText = data.message;
-    resultElement.className = data.success ? 'success' : 'error';
-    
-    // HAPUS BAGIAN TIMEOUT INI:
-    // if (data.success) {
-    //     setTimeout(() => {
-    //         html5QrcodeScanner.clear();
-    //         html5QrcodeScanner.render(onScanSuccess, onScanError);
-    //         resultElement.innerText = "Siap untuk memindai QR Code berikutnya...";
-    //         resultElement.className = "";
-    //     }, 2000);
-    // }
-})
-            .catch(err => {
-                resultElement.innerText = "Gagal mengirim data. Silakan coba lagi.";
-                resultElement.className = 'error';
-            });
-            
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ qr: decodedText })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    resultElement.innerText = data.message;
+                    resultElement.className = data.success ? 'success' : 'error';
+
+                    // HAPUS BAGIAN TIMEOUT INI:
+                    // if (data.success) {
+                    //     setTimeout(() => {
+                    //         html5QrcodeScanner.clear();
+                    //         html5QrcodeScanner.render(onScanSuccess, onScanError);
+                    //         resultElement.innerText = "Siap untuk memindai QR Code berikutnya...";
+                    //         resultElement.className = "";
+                    //     }, 2000);
+                    // }
+                })
+                .catch(err => {
+                    resultElement.innerText = "Gagal mengirim data. Silakan coba lagi.";
+                    resultElement.className = 'error';
+                });
+
             html5QrcodeScanner.clear();
         }
 
@@ -237,8 +240,9 @@ if (!isset($_SESSION['personel_id'])) {
             qrbox: { width: 250, height: 250 },
             aspectRatio: 1.0
         });
-        
+
         html5QrcodeScanner.render(onScanSuccess, onScanError);
     </script>
 </body>
+
 </html>

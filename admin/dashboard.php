@@ -143,6 +143,7 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
 <head>
     <title>Dashboard Admin - PERSEN</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         html {
@@ -187,7 +188,8 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
 
 <body>
     <div class="container">
-        <h1>Selamat Datang Admin</h1>
+        <h1>Selamat Datang <?php echo $role ?></h1>
+        <h3 style="text-align:center"><?php echo $satker ?></h3>
         <p class="tanggal"><?= date('d F Y') ?></p>
 
         <?php if (isset($_SESSION['success_message'])): ?>
@@ -237,7 +239,8 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
 
         <div style="text-align: center;">
             <a href="personel.php" class="dashboard-button">KELOLA PERSONEL</a>
-            <a href="rekap_harian.php" class="rekap-btn">REKAP HARIAN</a>
+            <!-- <a href="rekap_harian.php" class="rekap-btn">REKAP HARIAN</a> -->
+            <a href="log_rekap.php" class="dashboard-button">LOG REKAP</a>
             <a href="../index.php" class="dashboard-button">QR DASHBOARD</a>
         </div>
 

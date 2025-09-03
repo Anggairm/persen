@@ -18,9 +18,12 @@ $sudah_absen = $stmt2->fetchAll(PDO::FETCH_COLUMN);
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Detail Kategori <?= strtoupper($jenis) ?> - ABSENSI PERSONEL</title>
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
 </head>
+
 <body>
     <h2>Detail Kategori: <?= strtoupper($jenis) ?></h2>
 
@@ -33,17 +36,17 @@ $sudah_absen = $stmt2->fetchAll(PDO::FETCH_COLUMN);
             </tr>
             <?php foreach ($personel as $p): ?>
                 <?php if (!in_array($p['id'], $sudah_absen)): ?>
-                <tr>
-                    <td><?= $p['nrp'] ?></td>
-                    <td><?= $p['nama'] ?></td>
-                    <td>
-                        <form method="post">
-                            <input type="hidden" name="personel_id" value="<?= $p['id'] ?>">
-                            <input type="text" name="keterangan" placeholder="Masukkan keterangan">
-                            <button type="submit" name="simpan">Simpan</button>
-                        </form>
-                    </td>
-                </tr>
+                    <tr>
+                        <td><?= $p['nrp'] ?></td>
+                        <td><?= $p['nama'] ?></td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" name="personel_id" value="<?= $p['id'] ?>">
+                                <input type="text" name="keterangan" placeholder="Masukkan keterangan">
+                                <button type="submit" name="simpan">Simpan</button>
+                            </form>
+                        </td>
+                    </tr>
                 <?php endif; ?>
             <?php endforeach; ?>
         </table>
@@ -62,4 +65,5 @@ $sudah_absen = $stmt2->fetchAll(PDO::FETCH_COLUMN);
     }
     ?>
 </body>
+
 </html>

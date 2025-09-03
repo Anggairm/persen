@@ -17,6 +17,7 @@ $enable_keluar  = ($jam_sekarang >= "15:00");
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
     <title>Scan QR Code</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>

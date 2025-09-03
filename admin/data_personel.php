@@ -8,9 +8,12 @@ $personel = $stmt->fetchAll();
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Data Personel - PERSEN</title>
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
 </head>
+
 <body>
     <h2>Data Personel</h2>
 
@@ -24,12 +27,13 @@ $personel = $stmt->fetchAll();
             <th>Role</th>
         </tr>
         <?php foreach ($personel as $p): ?>
-        <tr>
-            <td><?= $p['nrp'] ?></td>
-            <td><?= $p['nama'] ?></td>
-            <td><?= $p['role'] ?></td>
-        </tr>
+            <tr>
+                <td><?= $p['nrp'] ?></td>
+                <td><?= $p['nama'] ?></td>
+                <td><?= $p['role'] ?></td>
+            </tr>
         <?php endforeach; ?>
     </table>
 </body>
+
 </html>
