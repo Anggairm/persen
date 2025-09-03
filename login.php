@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="assets/css/logo.png">
   <title>SIAPERS - Aplikasi Absensi Personel</title>
   <style>
     * {
@@ -230,6 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
   <div class="login-header">
+    <img src="assets/css/logo.png" alt="logo" class="login-logo" style=" width: 120px; height: 120px;" />
     <h1 class="login-title">SIAPERS</h1>
     <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
   </div>

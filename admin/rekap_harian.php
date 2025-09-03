@@ -75,6 +75,7 @@ foreach ($absensi_list as $a) {
     <meta charset="UTF-8">
     <title>Rekap Harian Absensi</title>
     <link rel="stylesheet" href="../assets/css/rekap.css">
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -158,6 +159,7 @@ foreach ($absensi_list as $a) {
             background-color: #125ea6;
         }
 
+
         @media (max-width: 768px) {
 
             .rekap-table th,
@@ -178,12 +180,45 @@ foreach ($absensi_list as $a) {
     </style>
 </head>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    // Export ke Excel
+    function exportTableToExcel(tableID, filename = '') {
+        var table = document.getElementById(tableID);
+        var wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+        return XLSX.writeFile(wb, (filename ? filename : 'rekap_absensi') + "_<?php echo $tanggal ?>.xlsx");
+    }
+
+    // Export ke PDF
+    function exportTableToPDF() {
+        const { jsPDF } = window.jspdf;
+        var doc = new jsPDF('l', 'pt', 'a4'); // landscape
+        doc.text("Rekapitulasi Absensi Harian - <?= date('d F Y') ?>", 40, 40);
+        doc.autoTable({
+            html: '#rekapTable',
+            startY: 60,
+            styles: { fontSize: 8 }
+        });
+        doc.save('rekap_absensi_<?php echo $tanggal ?>.pdf');
+    }
+</script>
+
+<!-- Tambahkan library untuk Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
 <body>
     <div class="container">
         <h1>Rekapitulasi Absensi Harian</h1>
         <p class="tanggal"><?= date('d F Y') ?></p>
-
-        <table class="rekap-table">
+        <div class="export-button" style="text-align:right; padding-bottom: 12px;">
+            <button onclick="exportTableToExcel('rekapTable', 'rekap_absensi')" class="dashboard-button">Export
+                Excel</button>
+            <button onclick="exportTableToPDF()" class="dashboard-button">Export PDF</button>
+        </div>
+        <table class="rekap-table" id="rekapTable">
             <thead>
                 <tr>
                     <th>No</th>

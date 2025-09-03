@@ -137,8 +137,9 @@ $tahun = date('Y');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/css/logo.png">
     <title>SIAPERS - Absensi Hari Ini</title>
-    <meta http-equiv="refresh" content="120"> <!-- Refresh otomatis setiap 60 detik -->
+    <meta http-equiv="refresh" content="10"> <!-- Refresh otomatis setiap 60 detik -->
     <style>
         * {
             margin: 0;
@@ -202,7 +203,7 @@ $tahun = date('Y');
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
 
         .date-section {
@@ -233,7 +234,7 @@ $tahun = date('Y');
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
-            padding: 10px;
+            padding: 5px;
             text-align: center;
             transition: all 0.3s ease;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -524,6 +525,9 @@ $tahun = date('Y');
                 </div>
 
                 <div class="stats-grid">
+                    <div class="stat-box">
+                        <h2><?php echo $satker ?></h2>
+                    </div>
                     <div class="stat-box total">
                         <h2 class="stat-title">JUMLAH</h2>
                         <div class="stat-number"><?= $total_personel ?></div>
@@ -544,11 +548,51 @@ $tahun = date('Y');
                     <!-- Tambahkan timestamp agar QR tidak di-cache browser -->
                     <img src="<?= $qr_file ?>?v=<?= time() ?>" alt="QR Code Absensi">
                 </div>
+                <!-- <table>
+                        <thead>
+                            <th>No</th>
+                            <th>satker</th>
+                            <th>Hadir/Jumlah</th>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $satkerCounts = [];
+                            $stmt = $pdo->prepare("SELECT satker, COUNT(*) as count FROM personel GROUP BY satker");
+                            $stmt->execute();
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                $satkerCounts[$row['satker']] = $row['count'];
+                            }
+
+                            $stmtHadir = $pdo->prepare("
+                            SELECT p.satker, COUNT(*) as hadir_count 
+                            FROM absensi a
+                            JOIN personel p ON p.id = a.personel_id
+                            WHERE a.tanggal = ? AND a.status = 'HADIR'
+                            GROUP BY p.satker
+                        ");
+                            $stmtHadir->execute([$tanggal]);
+                            $hadirCounts = $stmtHadir->fetchAll(PDO::FETCH_KEY_PAIR);
+
+                            $no = 1;
+                            foreach ($allSatkerOptions as $satker) {
+                                $count = isset($satkerCounts[$satker]) ? $satkerCounts[$satker] : 0;
+                                $hadirCount = isset($hadirCounts[$satker]) ? $hadirCounts[$satker] : 0;
+                                echo "<tr>
+                                    <td style='padding: 5px 10px; text-align: center;'>{$no}</td>
+                                    <td style='padding: 5px 10px;'>{$satker}</td>
+                                    <td style='padding: 5px 10px; text-align: center;'>{$hadirCount}/{$count}</td>
+                                  </tr>";
+                                $no++;
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                    </script> -->
             </div>
         </div>
     </div>
 
-    <div class="scroll-container">
+    <!-- <div class="scroll-container">
         <div class="scroll-content" style="display: inline-block; animation: scrollRight 60s linear infinite;">
             <?php
             $satkerCounts = [];
@@ -575,13 +619,13 @@ $tahun = date('Y');
             }
             ?>
         </div>
-    </div>
+    </div> -->
 
 
 
     <script>
         // Atur waktu refresh dalam menit
-        let refreshMinutes = 2;
+        let refreshMinutes = 0.25;
         let refreshTimer = refreshMinutes * 60; // konversi ke detik
 
         setInterval(() => {

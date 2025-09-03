@@ -17,14 +17,15 @@ if (isset($_POST['upload'])) {
     $sheet = $spreadsheet->getActiveSheet()->toArray();
 
     foreach ($sheet as $i => $row) {
-        if ($i == 0) continue; // skip header
+        if ($i == 0)
+            continue; // skip header
 
-        $nama    = $row[0];
-        $nrp     = $row[1];
+        $nama = $row[0];
+        $nrp = $row[1];
         $pangkat = $row[2];
-        $korps   = $row[3];
+        $korps = $row[3];
         $jabatan = $row[4];
-        $satker  = $row[5];
+        $satker = $row[5];
         $password_plain = $row[6];
         $password_hash = password_hash($password_plain, PASSWORD_DEFAULT);
 
@@ -38,10 +39,13 @@ if (isset($_POST['upload'])) {
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Upload Personel - PERSEN</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="icon" type="image/png" href="../assets/css/logo.png">
 </head>
+
 <body>
     <div class="container">
         <h2>Upload Data Personel (Excel)</h2>
@@ -50,7 +54,8 @@ if (isset($_POST['upload'])) {
             <button type="submit" name="upload">Upload</button>
         </form>
         <p><strong>Format kolom Excel:</strong><br>
-        nama, nrp, pangkat, korps, jabatan, satker, password</p>
+            nama, nrp, pangkat, korps, jabatan, satker, password</p>
     </div>
 </body>
+
 </html>

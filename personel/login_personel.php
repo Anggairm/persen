@@ -2,16 +2,18 @@
 session_start();
 // Fix: Ganti kondisi pengecekan session yang benar
 if (isset($_SESSION['personel_id'])) {
-    header('Location: scan.php');
-    exit;
+  header('Location: scan.php');
+  exit;
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../assets/css/logo.png">
   <title>SIAPERS - Aplikasi Absensi Personel</title>
   <style>
     * {
@@ -22,7 +24,7 @@ if (isset($_SESSION['personel_id'])) {
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg,rgb(90, 119, 248) 0%,rgb(32, 65, 255) 100%);
+      background: linear-gradient(135deg, rgb(90, 119, 248) 0%, rgb(32, 65, 255) 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -135,11 +137,11 @@ if (isset($_SESSION['personel_id'])) {
       .login-title {
         font-size: 3rem;
       }
-      
+
       .login-container {
         padding: 30px 25px;
       }
-      
+
       body {
         padding: 15px;
       }
@@ -159,6 +161,7 @@ if (isset($_SESSION['personel_id'])) {
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -170,6 +173,7 @@ if (isset($_SESSION['personel_id'])) {
         opacity: 0;
         transform: translateY(-20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -177,18 +181,36 @@ if (isset($_SESSION['personel_id'])) {
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-      20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      10%,
+      30%,
+      50%,
+      70%,
+      90% {
+        transform: translateX(-5px);
+      }
+
+      20%,
+      40%,
+      60%,
+      80% {
+        transform: translateX(5px);
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="login-header">
-  <img src="../assets/css/logo.png" alt="logo" class="login-logo" style=" width: 120px; height: 120px;"/>
-  <h1 class="login-title">SIAPERS AMPUH</h1>
-  <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
-</div>
+    <img src="../assets/css/logo.png" alt="logo" class="login-logo" style=" width: 120px; height: 120px;" />
+    <h1 class="login-title">SIAPERS AMPUH</h1>
+    <p class="login-subtitle">APLIKASI ABSENSI PERSONEL</p>
+  </div>
 
 
 
@@ -196,21 +218,21 @@ if (isset($_SESSION['personel_id'])) {
     <?php
     // Fix: Tampilkan error message jika ada
     if (isset($_GET['error'])) {
-        echo '<div class="error-message">' . htmlspecialchars($_GET['error']) . '</div>';
+      echo '<div class="error-message">' . htmlspecialchars($_GET['error']) . '</div>';
     }
     ?>
-    
+
     <!-- Fix: Tambahkan action ke proses_login.php -->
     <form method="POST" action="proses_login.php">
       <div class="input-group">
-        <input type="text" id="nrp" name="nrp" placeholder="NRP" required 
-               value="<?= isset($_POST['nrp']) ? htmlspecialchars($_POST['nrp']) : '' ?>">
+        <input type="text" id="nrp" name="nrp" placeholder="NRP" required
+          value="<?= isset($_POST['nrp']) ? htmlspecialchars($_POST['nrp']) : '' ?>">
       </div>
-      
+
       <div class="input-group">
         <input type="password" id="password" name="password" placeholder="KATA SANDI" required>
       </div>
-      
+
       <button type="submit" class="login-button">MASUK</button>
     </form>
   </div>
@@ -218,11 +240,11 @@ if (isset($_SESSION['personel_id'])) {
   <script>
     // Add interactive effects
     document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('focus', function() {
+      input.addEventListener('focus', function () {
         this.parentElement.style.transform = 'scale(1.02)';
       });
-      
-      input.addEventListener('blur', function() {
+
+      input.addEventListener('blur', function () {
         this.parentElement.style.transform = 'scale(1)';
       });
     });
@@ -231,4 +253,5 @@ if (isset($_SESSION['personel_id'])) {
     document.getElementById('nrp').focus();
   </script>
 </body>
+
 </html>
