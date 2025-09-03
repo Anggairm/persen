@@ -96,32 +96,44 @@ $hari_indonesia = [
     'Saturday' => 'SABTU'
 ];
 
+// $allSatkerOptions = [
+//     'SAHLIKASAU',
+//     'DISOPSLATAU',
+//     'PUSKODALAU',
+//     'DISPENAU',
+//     'INSPEKTORAT JENDERAL',
+//     'PUSLAIKLAMBANGJA',
+//     'DISPAMSANAU',
+//     'SOPSAU',
+//     'DISBANGOPSAU',
+//     'SKOMLEKAU',
+//     'SRENAAU',
+//     'DISADAAU',
+//     'SLOGAU',
+//     'DISAERO',
+//     'DISKOMLEKAU',
+//     'DISKONSAU',
+//     'DENMABESAU',
+//     'DISINFOLAHTAAU',
+//     'DISKUAU',
+//     'SETUMAU',
+//     'DISWATPERS',
+//     'SINTELAU',
+//     'DISDIKAU',
+//     'DISKESAU',
+//     'SPERSAU',
+//     'DISMINPERSAU'
+// ];
+
 $allSatkerOptions = [
-    'SAHLIKASAU',
-    'DISOPSLATAU',
-    'PUSKODALAU',
-    'DISPENAU',
-    'INSPEKTORAT JENDERAL',
-    'PUSLAIKLAMBANGJA',
-    'DISPAMSANAU',
-    'SOPSAU',
-    'DISBANGOPSAU',
-    'SKOMLEKAU',
-    'SRENAAU',
-    'DISADAAU',
-    'SLOGAU',
-    'DISAERO',
-    'DISKOMLEKAU',
-    'DISKONSAU',
-    'DENMABESAU',
     'DISINFOLAHTAAU',
     'DISKUAU',
     'SETUMAU',
-    'DISWATPERS',
+    'DISWATPERSAU',
     'SINTELAU',
     'DISDIKAU',
     'DISKESAU',
-    'SPERSAU',
+    'SPESAU',
     'DISMINPERSAU'
 ];
 
@@ -548,46 +560,55 @@ $tahun = date('Y');
                     <!-- Tambahkan timestamp agar QR tidak di-cache browser -->
                     <img src="<?= $qr_file ?>?v=<?= time() ?>" alt="QR Code Absensi">
                 </div>
-                <!-- <table>
-                        <thead>
-                            <th>No</th>
-                            <th>satker</th>
-                            <th>Hadir/Jumlah</th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $satkerCounts = [];
-                            $stmt = $pdo->prepare("SELECT satker, COUNT(*) as count FROM personel GROUP BY satker");
-                            $stmt->execute();
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                $satkerCounts[$row['satker']] = $row['count'];
+                <table>
+                    <thead>
+                        <th>No</th>
+                        <th>Satker</th>
+                        <th>Hadir/Jumlah</th>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Hitung jumlah personel per satker
+                        $satkerCounts = [];
+                        $stmt = $pdo->prepare("SELECT satker, COUNT(*) as count FROM personel GROUP BY satker");
+                        $stmt->execute();
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                            $satkerCounts[$row['satker']] = $row['count'];
+                        }
+
+                        // Hitung jumlah hadir per satker
+                        $stmtHadir = $pdo->prepare("
+            SELECT p.satker, COUNT(*) as hadir_count 
+            FROM absensi a
+            JOIN personel p ON p.id = a.personel_id
+            WHERE a.tanggal = ? AND a.status = 'HADIR'
+            GROUP BY p.satker
+        ");
+                        $stmtHadir->execute([$tanggal]);
+                        $hadirCounts = $stmtHadir->fetchAll(PDO::FETCH_KEY_PAIR);
+
+                        $no = 1;
+                        foreach ($allSatkerOptions as $s) {
+                            // Skip satker milik akun yang login
+                            if ($s === $_SESSION['satker']) {
+                                continue;
                             }
 
-                            $stmtHadir = $pdo->prepare("
-                            SELECT p.satker, COUNT(*) as hadir_count 
-                            FROM absensi a
-                            JOIN personel p ON p.id = a.personel_id
-                            WHERE a.tanggal = ? AND a.status = 'HADIR'
-                            GROUP BY p.satker
-                        ");
-                            $stmtHadir->execute([$tanggal]);
-                            $hadirCounts = $stmtHadir->fetchAll(PDO::FETCH_KEY_PAIR);
+                            $count = isset($satkerCounts[$s]) ? $satkerCounts[$s] : 0;
+                            $hadirCount = isset($hadirCounts[$s]) ? $hadirCounts[$s] : 0;
 
-                            $no = 1;
-                            foreach ($allSatkerOptions as $satker) {
-                                $count = isset($satkerCounts[$satker]) ? $satkerCounts[$satker] : 0;
-                                $hadirCount = isset($hadirCounts[$satker]) ? $hadirCounts[$satker] : 0;
-                                echo "<tr>
-                                    <td style='padding: 5px 10px; text-align: center;'>{$no}</td>
-                                    <td style='padding: 5px 10px;'>{$satker}</td>
-                                    <td style='padding: 5px 10px; text-align: center;'>{$hadirCount}/{$count}</td>
-                                  </tr>";
-                                $no++;
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                    </script> -->
+                            echo "<tr>
+                    <td style='padding: 5px 10px; text-align: center;'>{$no}</td>
+                    <td style='padding: 5px 10px;'>{$s}</td>
+                    <td style='padding: 5px 10px; text-align: center;'>{$hadirCount}/{$count}</td>
+                  </tr>";
+                            $no++;
+                        }
+                        ?>
+                    </tbody>
+                </table>
+
+                </script>
             </div>
         </div>
     </div>
