@@ -8,7 +8,7 @@ if (!isset($_SESSION['personel_id'])) {
 date_default_timezone_set("Asia/Jakarta");
 $jam_sekarang = date("H:i");
 
-$disable_masuk  = ($jam_sekarang < "08:00"); 
+$disable_masuk  = ($jam_sekarang < "06:00"); 
 $enable_keluar  = ($jam_sekarang >= "15:00"); 
 ?>
 
