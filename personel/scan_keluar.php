@@ -208,14 +208,29 @@ if (!isset($_SESSION['personel_id'])) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ qr: decodedText })
             })
-                .then(res => res.json())
-                .then(data => {
+                .then(async (res) => {
+                    const raw = await res.text(); // ambil response mentah
+                    let data;
+                    try {
+                        data = JSON.parse(raw); // coba parse JSON
+                    } catch (e) {
+                        // kalau bukan JSON, berarti error PHP atau HTML
+                        throw new Error("Respons bukan JSON:\n" + raw);
+                    }
+
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.message || 'Terjadi kesalahan saat absen');
+                    }
+
+                    // Jika sukses
                     resultElement.innerText = data.message;
-                    resultElement.className = data.status === 'success' ? 'success' : 'error';
+                    resultElement.className = 'success';
                 })
                 .catch(err => {
-                    resultElement.innerText = "Gagal mengirim data. Silakan coba lagi." + err.message;
+                    // tampilkan error mentah dari server
+                    resultElement.innerText = "❌ Gagal: " + err.message;
                     resultElement.className = 'error';
+                    console.error('Detail error server:', err);
                 });
 
             html5QrcodeScanner.clear();
