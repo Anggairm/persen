@@ -109,7 +109,7 @@ if ($stmt->fetchColumn()) {
 // ====================
 // Simpan data absensi
 // ====================
-$stmt = $pdo->prepare("INSERT INTO absensi (personel_id, tanggal, jam, status) VALUES (?, ?, ?, 'HADIR')");
+$stmt = $pdo->prepare("INSERT INTO absensi (personel_id, tanggal, jam, keluar, status) VALUES (?, ?, ?, NULL, 'HADIR')");
 $stmt->execute([$personel_id, $tanggal, $jam]);
 
 http_response_code(200);
