@@ -133,7 +133,8 @@ $pangkatOptions = [
     'KOPDA',
     'PRAKA',
     'PRATU',
-    'PRADA'
+    'PRADA',
+    'PNS'
 ];
 
 $korpsOptions = [
@@ -147,7 +148,8 @@ $korpsOptions = [
     'POM',
     'KES',
     'SUS',
-    'KUM'
+    'KUM',
+    'PNS'
 ];
 
 // Semua opsi satker
@@ -558,6 +560,35 @@ if ($role === 'superadmin') {
             color: #495057;
         }
 
+        th {
+            position: relative;
+            cursor: pointer;
+            white-space: nowrap;
+            /* cegah teks turun ke bawah */
+            padding-right: 20px;
+            /* beri ruang untuk panah */
+        }
+
+        th.sorted-asc::after,
+        th.sorted-desc::after {
+            content: "";
+            position: absolute;
+            right: 6px;
+            /* letakkan di ujung kanan */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            pointer-events: none;
+        }
+
+        th.sorted-asc::after {
+            content: "▲";
+        }
+
+        th.sorted-desc::after {
+            content: "▼";
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .header-controls {
@@ -692,10 +723,10 @@ if ($role === 'superadmin') {
             <table id="personelTable">
                 <thead>
                     <tr>
-                        <th>No</th>
+                        <th>No </th>
                         <th>NRP</th>
                         <th>Nama</th>
-                        <th>Pangkat</th>
+                        <th>Pangkat </th>
                         <th>Korps</th>
                         <th>Jabatan</th>
                         <th>Satker</th>
@@ -1179,6 +1210,51 @@ if ($role === 'superadmin') {
             tutupModal: typeof tutupModal,
             applyFilters: typeof applyFilters,
             testModal: typeof testModal
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('personelTable');
+            const headers = table.querySelectorAll('th');
+            let sortDirection = {}; // simpan urutan sort tiap kolom
+
+            headers.forEach((header, index) => {
+                if (header.textContent.trim() === 'Aksi') return; // abaikan kolom aksi
+
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', function () {
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+                    const isAsc = !(sortDirection[index] === 'asc');
+                    sortDirection[index] = isAsc ? 'asc' : 'desc';
+
+                    rows.sort((a, b) => {
+                        let aText = a.children[index].textContent.trim().toLowerCase();
+                        let bText = b.children[index].textContent.trim().toLowerCase();
+
+                        // jika kolom angka, urutkan sebagai angka
+                        const aNum = parseFloat(aText.replace(/[^0-9.-]+/g, ""));
+                        const bNum = parseFloat(bText.replace(/[^0-9.-]+/g, ""));
+                        const isNumber = !isNaN(aNum) && !isNaN(bNum);
+
+                        if (isNumber) {
+                            return isAsc ? aNum - bNum : bNum - aNum;
+                        } else {
+                            return isAsc
+                                ? aText.localeCompare(bText)
+                                : bText.localeCompare(aText);
+                        }
+                    });
+
+                    // hapus isi tbody dan masukkan kembali urutan baru
+                    tbody.innerHTML = '';
+                    rows.forEach(r => tbody.appendChild(r));
+
+                    // update tampilan header aktif (optional)
+                    headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+                    header.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
+                });
+            });
         });
     </script>
 </body>
