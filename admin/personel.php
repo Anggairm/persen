@@ -1215,10 +1215,17 @@ if ($role === 'superadmin') {
         document.addEventListener('DOMContentLoaded', function () {
             const table = document.getElementById('personelTable');
             const headers = table.querySelectorAll('th');
-            let sortDirection = {}; // simpan urutan sort tiap kolom
+            let sortDirection = {};
+
+            const pangkatOrder = [
+                'MARSEKAL', 'MARSDYA', 'MARSDA', 'MARSMA',
+                'KOLONEL', 'LETKOL', 'MAYOR', 'KAPTEN', 'LETTU', 'LETDA',
+                'PELTU', 'PELDA', 'SERMA', 'SERKA', 'SERTU', 'SERDA',
+                'KOPKA', 'KOPTU', 'KOPDA', 'PRAKA', 'PRATU', 'PRADA', 'PNS'
+            ];
 
             headers.forEach((header, index) => {
-                if (header.textContent.trim() === 'Aksi') return; // abaikan kolom aksi
+                if (header.textContent.trim() === 'Aksi') return;
 
                 header.style.cursor = 'pointer';
                 header.addEventListener('click', function () {
@@ -1229,10 +1236,17 @@ if ($role === 'superadmin') {
                     sortDirection[index] = isAsc ? 'asc' : 'desc';
 
                     rows.sort((a, b) => {
-                        let aText = a.children[index].textContent.trim().toLowerCase();
-                        let bText = b.children[index].textContent.trim().toLowerCase();
+                        let aText = a.children[index].textContent.trim().toUpperCase();
+                        let bText = b.children[index].textContent.trim().toUpperCase();
 
-                        // jika kolom angka, urutkan sebagai angka
+                        // --- 🔥 urutan khusus untuk kolom PANGKAT ---
+                        if (header.textContent.trim() === 'Pangkat') {
+                            const aIndex = pangkatOrder.indexOf(aText);
+                            const bIndex = pangkatOrder.indexOf(bText);
+                            return isAsc ? aIndex - bIndex : bIndex - aIndex;
+                        }
+
+                        // --- default: cek apakah angka ---
                         const aNum = parseFloat(aText.replace(/[^0-9.-]+/g, ""));
                         const bNum = parseFloat(bText.replace(/[^0-9.-]+/g, ""));
                         const isNumber = !isNaN(aNum) && !isNaN(bNum);
@@ -1246,16 +1260,15 @@ if ($role === 'superadmin') {
                         }
                     });
 
-                    // hapus isi tbody dan masukkan kembali urutan baru
                     tbody.innerHTML = '';
                     rows.forEach(r => tbody.appendChild(r));
 
-                    // update tampilan header aktif (optional)
                     headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
                     header.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
                 });
             });
         });
+
     </script>
 </body>
 
