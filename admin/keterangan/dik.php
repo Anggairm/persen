@@ -4,7 +4,7 @@ require_once '../../inc/db.php';
 
 // Pastikan user adalah admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
+    header("Location: ../index.php");
     exit;
 }
 

@@ -6,7 +6,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 // Cek role admin
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
-    header('Location: ../login.php');
+    header('Location: ../index.php');
     exit;
 }
 
