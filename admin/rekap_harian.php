@@ -4,7 +4,7 @@ require_once '../inc/db.php';
 
 // Pastikan sudah start session dan koneksi database
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
-    header('Location: ../login.php');
+    header('Location: ../index.php');
     exit;
 }
 

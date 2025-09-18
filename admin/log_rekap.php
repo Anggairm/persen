@@ -3,7 +3,7 @@ session_start();
 require_once '../inc/db.php';
 
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
-    header('Location: ../login.php');
+    header('Location: ../index.php');
     exit;
 }
 
@@ -732,7 +732,7 @@ $satkerOptions = $role === 'superadmin' ? $allSatkerOptions : [$satker];
                 Absen: r.status ?? "-",
                 Masuk: r.jam_masuk ?? "",
                 Keluar: r.jam_keluar ?? "",
-                Keterangan: r.keterangan ?? "-"
+                Keterangan: `${r.kategori ?? ''} - ${r.keterangan ?? ''}` ?? "-"
             })));
 
             const wb = XLSX.utils.book_new();
@@ -764,7 +764,7 @@ $satkerOptions = $role === 'superadmin' ? $allSatkerOptions : [$satker];
                 r.status ?? "-",
                 r.jam_masuk ?? "",
                 r.jam_keluar ?? "",
-                r.keterangan ?? "-"
+                `${r.kategori ?? ''} - ${r.keterangan ?? ''}` ?? "-"
             ]);
 
             doc.autoTable({

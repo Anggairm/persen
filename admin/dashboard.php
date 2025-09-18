@@ -5,7 +5,7 @@ require_once '../inc/db.php';
 date_default_timezone_set('Asia/Jakarta');
 
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'superadmin'])) {
-    header('Location: ../login.php');
+    header('Location: ../index.php');
     exit;
 }
 
@@ -292,7 +292,7 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
             <a href="personel.php" class="dashboard-button">KELOLA PERSONEL</a>
             <!-- <a href="rekap_harian.php" class="rekap-btn">REKAP HARIAN</a> -->
             <a href="log_rekap.php" class="dashboard-button">LOG REKAP</a>
-            <a href="../index.php" class="dashboard-button">QR DASHBOARD</a>
+            <a href="qrDashboard.php" class="dashboard-button">QR DASHBOARD</a>
         </div>
 
         <div class="nav-buttons">
