@@ -183,6 +183,57 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
         .edit-btn:hover {
             background-color: #e0a800;
         }
+
+        .dropdown-belum {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .dropdown-toggle {
+            padding: 8px 12px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropdown-belum.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-search {
+            width: 95%;
+            margin: 5px auto;
+            display: block;
+            padding: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .dropdown-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dropdown-list li {
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-list li:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 
@@ -309,13 +360,18 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                                 <td colspan="3">
                                     <div class="dropdown-belum">
                                         <button type="button" class="dropdown-toggle">Pilih Personel ▼</button>
-                                        <ul class="dropdown-menu">
-                                            <?php foreach ($personel_belum_absen as $p): ?>
-                                                <li data-id="<?= $p['id'] ?>">
-                                                    <?= htmlspecialchars($p['pangkat'] . ' ' . $p['korps'] . ' ' . $p['nama']) ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
+                                        <div class="dropdown-menu">
+                                            <!-- Kolom pencarian -->
+                                            <input type="text" class="dropdown-search" placeholder="Cari personel...">
+
+                                            <ul class="dropdown-list">
+                                                <?php foreach ($personel_belum_absen as $p): ?>
+                                                    <li data-id="<?= $p['id'] ?>">
+                                                        <?= htmlspecialchars($p['pangkat'] . ' ' . $p['korps'] . ' ' . $p['nama']) ?>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -428,6 +484,47 @@ $kategori = ['DINAS DALAM', 'DINAS LUAR', 'BANTUAN PERSONEL', 'PENDIDIKAN', 'CUT
                 }
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.dropdown-belum').forEach(function (dropdown) {
+                const toggle = dropdown.querySelector('.dropdown-toggle');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                const search = dropdown.querySelector('.dropdown-search');
+                const items = dropdown.querySelectorAll('.dropdown-list li');
+
+                // Buka/tutup dropdown
+                toggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    document.querySelectorAll('.dropdown-belum').forEach(d => d.classList.remove('open'));
+                    dropdown.classList.toggle('open');
+                    search.focus();
+                });
+
+                // Klik item untuk memilih
+                items.forEach(item => {
+                    item.addEventListener('click', function () {
+                        toggle.textContent = this.textContent;
+                        toggle.dataset.id = this.dataset.id;
+                        dropdown.classList.remove('open');
+                    });
+                });
+
+                // Filter pencarian
+                search.addEventListener('input', function () {
+                    const term = this.value.toLowerCase();
+                    items.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(term) ? 'block' : 'none';
+                    });
+                });
+            });
+
+            // Klik di luar dropdown menutup menu
+            document.addEventListener('click', function () {
+                document.querySelectorAll('.dropdown-belum').forEach(d => d.classList.remove('open'));
+            });
+        });
+
 
 
         document.addEventListener('click', function (e) {
